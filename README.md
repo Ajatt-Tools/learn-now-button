@@ -7,4 +7,7 @@ that you want to learn right away.
 """screenshot
 
 ## Installation
-The addon can be installed from [Ankiweb](blabla.com).
+The addon can be installed from [Ankiweb](blabla.com), or manually:
+```
+git clone 'https://github.com/Ajatt-Tools/____.git' ~/.local/share/Anki2/addons21/____
+```
