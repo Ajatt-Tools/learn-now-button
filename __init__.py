@@ -1,5 +1,5 @@
 from aqt import mw
-from anki.lang import _
+from anki.lang import ngettext
 from aqt import gui_hooks
 from aqt.utils import tooltip
 from aqt.browser import Browser
@@ -60,11 +60,12 @@ def putToLearn(cids):
 
     return (skipped, accepted)
 
+
 def onBrowserPutToLearn(self):
     cids = self.selectedCards()
 
     self.model.beginReset()
-    self.mw.checkpoint(_("Put cards to learning"))
+    self.mw.checkpoint("Put cards in learning")
 
     skipped, accepted = putToLearn(cids)
 
