@@ -5,9 +5,11 @@ from aqt.utils import tooltip
 from aqt.browser import Browser
 from random import randrange
 
+
 def notify_user(msg):
     tooltip(msg, period = 5000) # 5 seconds
     print(msg)
+
 
 def format_message(skipped_cids, accepted_cids):
     msg = ''
@@ -15,18 +17,21 @@ def format_message(skipped_cids, accepted_cids):
         msg += ngettext("%d card was put in the learning queue.",
                         "%d cards were put in the learning queue.",
                         len(accepted_cids)
-                ) % len(accepted_cids)
+                        ) % len(accepted_cids)
 
     if len(skipped_cids) > 0:
-        if len(msg) > 0: msg += ' '
+        if len(msg) > 0:
+            msg += ' '
         msg += ngettext("%d card was ignored because it wasn't a new card.",
                         "%d cards were ignored because they were not new cards.",
                         len(skipped_cids)
-                ) % len(skipped_cids)
+                        ) % len(skipped_cids)
     return msg
+
 
 def is_new(card):
     return card.type == 0 and card.queue == 0
+
 
 def putToLearn(cids):
     # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
@@ -75,10 +80,12 @@ def onBrowserPutToLearn(self):
     msg = format_message(skipped, accepted)
     notify_user(msg)
 
+
 def onBrowserSetupMenus(self):
     menu = self.form.menu_Cards
     a = menu.addAction("Learn now")
     a.triggered.connect(self.onBrowserPutToLearn)
+
 
 Browser.onBrowserPutToLearn = onBrowserPutToLearn
 gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)
