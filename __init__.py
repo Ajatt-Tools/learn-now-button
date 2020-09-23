@@ -1,9 +1,10 @@
-from aqt import mw
+from random import randrange
+
 from anki.lang import ngettext
 from aqt import gui_hooks
-from aqt.utils import tooltip
+from aqt import mw
 from aqt.browser import Browser
-from random import randrange
+from aqt.utils import tooltip
 
 
 def notify_user(msg):
