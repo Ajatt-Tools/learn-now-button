@@ -9,5 +9,5 @@ that you want to learn right away.
 ## Installation
 The addon can be installed from [Ankiweb](blabla.com), or manually:
 ```
-git clone 'https://github.com/Ajatt-Tools/____.git' ~/.local/share/Anki2/addons21/____
+git clone 'https://github.com/Ajatt-Tools/learn-now-button.git' ~/.local/share/Anki2/addons21/learnnow
 ```
