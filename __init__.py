@@ -7,7 +7,7 @@ from random import randrange
 
 
 def notify_user(msg):
-    tooltip(msg, period = 5000) # 5 seconds
+    tooltip(msg, period=7000)  # 7 seconds
     print(msg)
 
 
