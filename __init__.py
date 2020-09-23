@@ -63,7 +63,7 @@ def putToLearn(cids):
         card.flush()
         accepted.append(cid)
 
-    return (skipped, accepted)
+    return skipped, accepted
 
 
 def onBrowserPutToLearn(self):
