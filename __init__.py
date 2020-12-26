@@ -1,5 +1,4 @@
-from random import randrange
-
+import time
 from anki.cards import Card
 from anki.lang import ngettext
 from aqt import gui_hooks
@@ -68,8 +67,8 @@ def putToLearn(cids: list) -> tuple:
         card.queue = 1
         card.ivl = 0
 
-        # random int according to the anki database docs
-        card.due = randrange(50, 500)
+        # due date, like this: 1608939774
+        card.due = int(time.time())
 
         # number of reps left till graduation
         card.left = reps_to_graduate(card)
