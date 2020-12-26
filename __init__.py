@@ -35,6 +35,23 @@ def is_new(card: Card) -> bool:
     return card.type == 0 and card.queue == 0
 
 
+def reps_to_graduate(card: Card) -> int:
+    # magick number that tells anki how many times the card
+    # has to be answered good to graduate
+    # a * 1000 + b,
+    # b - the number of reps left till graduation
+    # a - the number of reps left today
+    group_conf: dict = mw.col.decks.confForDid(card.did)
+
+    try:
+        reps_left = len(group_conf['new']['delays'])
+    except KeyError:
+        reps_left = 2  # default in anki
+
+    print('delays:', group_conf['new']['delays'], 'reps left:', reps_left)
+    return reps_left * 1000 + reps_left
+
+
 def putToLearn(cids: list) -> tuple:
     # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
     skipped, accepted = [], []
@@ -54,9 +71,8 @@ def putToLearn(cids: list) -> tuple:
         # random int according to the anki database docs
         card.due = randrange(50, 500)
 
-        # magick number that tells anki that the card
-        # has to be answered good two times to graduate
-        card.left = 2002
+        # number of reps left till graduation
+        card.left = reps_to_graduate(card)
 
         # obviously, because it's a new card.
         card.reps = 0
