@@ -1,5 +1,6 @@
 from random import randrange
 
+from anki.cards import Card
 from anki.lang import ngettext
 from aqt import gui_hooks
 from aqt import mw
@@ -7,12 +8,12 @@ from aqt.browser import Browser
 from aqt.utils import tooltip
 
 
-def notify_user(msg):
+def notify_user(msg: str) -> None:
     tooltip(msg, period=7000)  # 7 seconds
     print(msg)
 
 
-def format_message(skipped_cids, accepted_cids):
+def format_message(skipped_cids: list, accepted_cids: list) -> str:
     msg = ''
     if len(accepted_cids) > 0:
         msg += ngettext("%d card was put in the learning queue.",
@@ -30,11 +31,11 @@ def format_message(skipped_cids, accepted_cids):
     return msg
 
 
-def is_new(card):
+def is_new(card: Card) -> bool:
     return card.type == 0 and card.queue == 0
 
 
-def putToLearn(cids):
+def putToLearn(cids: list) -> tuple:
     # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
     skipped, accepted = [], []
 
@@ -67,7 +68,7 @@ def putToLearn(cids):
     return skipped, accepted
 
 
-def onBrowserPutToLearn(self):
+def onBrowserPutToLearn(self: Browser) -> None:
     cids = self.selectedCards()
 
     self.model.beginReset()
@@ -82,7 +83,7 @@ def onBrowserPutToLearn(self):
     notify_user(msg)
 
 
-def onBrowserSetupMenus(self):
+def onBrowserSetupMenus(self: Browser) -> None:
     menu = self.form.menu_Cards
     a = menu.addAction("Learn now")
     a.triggered.connect(self.onBrowserPutToLearn)
