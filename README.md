@@ -1,4 +1,9 @@
 # Learn Now Button
+[![Rate on AnkiWeb](https://glutanimate.com/logos/ankiweb-rate.svg)](https://ankiweb.net/shared/info/1021636467)
+![GitHub](https://img.shields.io/github/license/Ajatt-Tools/learn-now-button)
+[![Patreon](https://img.shields.io/badge/support-patreon-orange)](https://www.patreon.com/tatsumoto_ren)
+[![Chat](https://img.shields.io/badge/matrix_chat-join-green.svg)](https://element.asra.gr/#/room/#djt:g33k.se)
+
 This addon adds a button to the card browser that immediately puts selected new cards
 in the learning queue.
 You can use it if you have a big sentence bank and you find a really good sentence
