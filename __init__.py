@@ -2,6 +2,7 @@ import time
 from typing import Sequence
 
 from anki.cards import Card, CardId
+from anki.decks import DeckConfigDict
 from anki.lang import ngettext
 from aqt import gui_hooks
 from aqt import mw
@@ -42,12 +43,9 @@ def reps_to_graduate(card: Card) -> int:
     # a * 1000 + b,
     # b - the number of reps left till graduation
     # a - the number of reps left today
-    group_conf: dict = mw.col.decks.confForDid(card.did)
+    group_conf: DeckConfigDict = mw.col.decks.config_dict_for_deck_id(card.did)
 
-    try:
-        reps_left = len(group_conf['new']['delays'])
-    except KeyError:
-        reps_left = 2  # default in anki
+    reps_left = len(group_conf['new']['delays'])
 
     print('delays:', group_conf['new']['delays'], 'reps left:', reps_left)
     return reps_left * 1000 + reps_left
