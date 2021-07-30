@@ -1,5 +1,7 @@
 import time
-from anki.cards import Card
+from typing import Sequence
+
+from anki.cards import Card, CardId
 from anki.lang import ngettext
 from aqt import gui_hooks
 from aqt import mw
@@ -51,7 +53,7 @@ def reps_to_graduate(card: Card) -> int:
     return reps_left * 1000 + reps_left
 
 
-def putToLearn(cids: list) -> tuple:
+def put_to_learn(cids: Sequence[CardId]) -> tuple:
     # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
     skipped, accepted = [], []
 
@@ -83,13 +85,13 @@ def putToLearn(cids: list) -> tuple:
     return skipped, accepted
 
 
-def onBrowserPutToLearn(self: Browser) -> None:
-    cids = self.selectedCards()
+def on_put_to_learn(self: Browser) -> None:
+    cids = self.selected_cards()
 
     self.model.beginReset()
     self.mw.checkpoint("Put cards in learning")
 
-    skipped, accepted = putToLearn(cids)
+    skipped, accepted = put_to_learn(cids)
 
     self.model.endReset()
     self.mw.reset()
@@ -98,11 +100,11 @@ def onBrowserPutToLearn(self: Browser) -> None:
     notify_user(msg)
 
 
-def onBrowserSetupMenus(self: Browser) -> None:
+def on_browser_menus_did_init(self: Browser) -> None:
     menu = self.form.menu_Cards
     a = menu.addAction("Learn now")
     a.triggered.connect(self.onBrowserPutToLearn)
 
 
-Browser.onBrowserPutToLearn = onBrowserPutToLearn
-gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)
+Browser.onBrowserPutToLearn = on_put_to_learn
+gui_hooks.browser_menus_did_init.append(on_browser_menus_did_init)
