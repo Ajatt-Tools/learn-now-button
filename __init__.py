@@ -1,2 +1,3 @@
-from .learn_now import init
-init()
+from . import learn_now
+
+learn_now.init()

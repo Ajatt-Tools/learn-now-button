@@ -1,7 +1,7 @@
 import random
 import time
 from gettext import ngettext
-from typing import Iterable
+from typing import Sequence
 from typing import Sized, Callable
 
 from anki.cards import Card
@@ -12,8 +12,6 @@ from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.operations import ResultWithChanges
 from aqt.utils import tooltip
-
-UNDO_QUEUE_LIMIT = 30  # https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-45/11212
 
 
 def notify_user(msg: str) -> None:
@@ -96,22 +94,20 @@ def put_in_learning(col: Collection, card: Card) -> None:
     # set initial factor
     card.factor = col.decks.config_dict_for_deck_id(card.did)['new']['initialFactor']
 
-    # save the card and add an undo entry.
-    col.update_card(card)
-
 
 @with_undo_entry(undo_msg="Put cards in learning")
-def put_cards_in_learning(col: Collection, cards: Iterable[Card]):
+def put_cards_in_learning(col: Collection, cards: Sequence[Card]):
     for card in cards:
         put_in_learning(col, card)
+
+    # save the cards and add an undo entry.
+    col.update_cards(cards)
 
 
 def on_put_to_learn(self: Browser) -> None:
     selected_cards = {self.col.get_card(cid) for cid in self.selected_cards()}
     new_cards = {card for card in selected_cards if is_new(card)}
 
-    if len(new_cards) > UNDO_QUEUE_LIMIT:
-        notify_user(f"Can't perform this operation on more than {UNDO_QUEUE_LIMIT} cards at once.")
     if len(new_cards) < 1:
         notify_user("No new cards selected. Nothing to do.")
     else:
