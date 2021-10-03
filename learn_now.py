@@ -1,3 +1,4 @@
+import random
 import time
 from gettext import ngettext
 from typing import Iterable
@@ -83,7 +84,7 @@ def put_in_learning(col: Collection, card: Card) -> None:
     card.ivl = 0
 
     # due date, like this: 1608939774
-    card.due = int(time.time())
+    card.due = int(time.time() - random.randint(0, 100))
 
     # number of reps left till graduation
     card.left = reps_to_graduate(col, card)
