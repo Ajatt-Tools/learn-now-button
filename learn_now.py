@@ -11,7 +11,10 @@ from aqt import gui_hooks, qconnect
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.operations import ResultWithChanges
+from aqt.qt import QKeySequence
 from aqt.utils import tooltip
+
+from .config import config
 
 
 def notify_user(msg: str) -> None:
@@ -119,9 +122,12 @@ def on_put_to_learn(self: Browser) -> None:
 
 
 def on_browser_menus_did_init(self: Browser) -> None:
-    menu = self.form.menu_Cards
-    a = menu.addAction("Learn now")
-    qconnect(a.triggered, self.onBrowserPutToLearn)
+    action = self.form.menu_Cards.addAction("Learn now")
+    qconnect(action.triggered, self.onBrowserPutToLearn)
+
+    if shortcut := config.get('shortcut'):
+        action.setShortcut(QKeySequence(shortcut))
+        action.setText(f"Learn now ({shortcut})")
 
 
 ######################################################################
