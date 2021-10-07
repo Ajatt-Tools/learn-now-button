@@ -1,3 +1,7 @@
+# Learn Now add-on for Anki 2.1
+# Copyright: Ren Tatsumoto <tatsu at autistici.org>
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import random
 import time
 from gettext import ngettext
@@ -107,7 +111,7 @@ def put_cards_in_learning(col: Collection, cards: Sequence[Card]):
     col.update_cards(cards)
 
 
-def on_put_to_learn(self: Browser) -> None:
+def on_put_in_learning(self: Browser) -> None:
     selected_cards = {self.col.get_card(cid) for cid in self.selected_cards()}
     new_cards = {card for card in selected_cards if is_new(card)}
 
@@ -135,5 +139,5 @@ def on_browser_menus_did_init(self: Browser) -> None:
 ######################################################################
 
 def init():
-    Browser.onBrowserPutToLearn = on_put_to_learn
+    Browser.onBrowserPutToLearn = on_put_in_learning
     gui_hooks.browser_menus_did_init.append(on_browser_menus_did_init)

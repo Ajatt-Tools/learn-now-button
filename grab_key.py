@@ -8,13 +8,17 @@ from aqt.qt import *
 class KeyPressDialog(QDialog):
     MOD_MASK = Qt.CTRL | Qt.ALT | Qt.SHIFT | Qt.META
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
+        self.shortcut = None
         self.setMinimumSize(380, 64)
         self.setWindowTitle("Grab key combination")
-        self.label = QLabel("Please press the key combination you would like to assign.")
+        self.label = QLabel(
+            "Please press the key combination you would like to assign.\n"
+            "Supported modifiers: CTRL, ALT, SHIFT or META.\n"
+            "Press ESC to delete the shortcut."
+        )
         self.setLayout(self.make_layout())
-        self.key_name = None
 
     def make_layout(self) -> QLayout:
         layout = QVBoxLayout()
@@ -24,9 +28,12 @@ class KeyPressDialog(QDialog):
 
     def keyPressEvent(self, event):
         # https://stackoverflow.com/questions/35033116
-        key = event.key()
-        modifiers = int(event.modifiers())
-        if (
+        key, modifiers = int(event.key()), int(event.modifiers())
+
+        if key == Qt.Key_Escape:
+            self.shortcut = None
+            self.accept()
+        elif (
                 modifiers
                 and modifiers & self.MOD_MASK == modifiers
                 and key > 0
@@ -35,12 +42,8 @@ class KeyPressDialog(QDialog):
                 and key != Qt.Key_Control
                 and key != Qt.Key_Meta
         ):
-            self.key_name = QKeySequence(modifiers + key).toString()
+            self.shortcut = QKeySequence(modifiers + key).toString()
             self.accept()
-        else:
-            self.label.setText(
-                f"<font color=\"#540000\">Please try again and use a modifier: CTRL, ALT, SHIFT or META.</font>"
-            )
 
 
 def detect_keypress():
