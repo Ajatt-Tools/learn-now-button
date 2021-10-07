@@ -13,9 +13,10 @@ except ImportError:
 class SettingsDialog(QDialog):
     def __init__(self, config: dict = None):
         super(SettingsDialog, self).__init__()
-        self.shortcut = config.get('shortcut')
+        config = config or {}
         self.setMinimumSize(320, 64)
         self.setWindowTitle("Learn Now Settings")
+        self.shortcut = config.get('shortcut') or ''
         self.change_shortcut_button = QPushButton(config.get('shortcut') or '[Not assigned]')
         self.setLayout(self.make_layout())
         qconnect(self.change_shortcut_button.clicked, self.on_set_shortcut)
