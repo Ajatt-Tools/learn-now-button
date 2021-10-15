@@ -11,8 +11,8 @@ except ImportError:
 
 
 class SettingsDialog(QDialog):
-    def __init__(self, config: dict = None):
-        super(SettingsDialog, self).__init__()
+    def __init__(self, config: dict = None, *args, **kwargs):
+        super(SettingsDialog, self).__init__(*args, **kwargs)
         config = config or {}
         self.setMinimumSize(320, 64)
         self.setWindowTitle("Learn Now Settings")

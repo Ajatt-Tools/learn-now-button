@@ -8,8 +8,8 @@ from aqt.qt import *
 class KeyPressDialog(QDialog):
     MOD_MASK = Qt.CTRL | Qt.ALT | Qt.SHIFT | Qt.META
 
-    def __init__(self, parent: QWidget = None):
-        super().__init__(parent)
+    def __init__(self, parent: QWidget = None, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
         self.shortcut = None
         self.setMinimumSize(380, 64)
         self.setWindowTitle("Grab key combination")
