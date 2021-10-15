@@ -51,7 +51,9 @@ def test_dialog():
     app = QApplication(sys.argv)
     w = SettingsDialog()
     w.show()
-    sys.exit(app.exec_())
+    code = app.exec()
+    print(f"{'Accepted' if w.result() else 'Rejected'}. Shortcut: \"{w.shortcut}\"")
+    sys.exit(code)
 
 
 if __name__ == '__main__':

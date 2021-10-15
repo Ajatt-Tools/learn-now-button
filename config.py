@@ -22,7 +22,7 @@ def set_config_action(fn: Callable) -> None:
 
 def init():
     def on_open_settings():
-        if (d := SettingsDialog(config)).exec_():
+        if (d := SettingsDialog(config)).exec():
             config['shortcut'] = d.shortcut
             write_config()
 
