@@ -20,3 +20,8 @@ or install it manually using `git`:
 ```
 git clone 'https://github.com/Ajatt-Tools/learn-now-button.git' ~/.local/share/Anki2/addons21/learnnow
 ```
+
+## Configuration
+
+To configure the add-on, open the Anki Add-on Menu via "Tools" > "Add-ons" and select "Learn now Button".
+Then click the "Config" button on the right-side of the screen.
