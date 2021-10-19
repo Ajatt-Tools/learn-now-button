@@ -25,3 +25,5 @@ git clone 'https://github.com/Ajatt-Tools/learn-now-button.git' ~/.local/share/A
 
 To configure the add-on, open the Anki Add-on Menu via "Tools" > "Add-ons" and select "Learn now Button".
 Then click the "Config" button on the right-side of the screen.
+You can see how it's done on
+[![Youtube](https://raw.githubusercontent.com/Ajatt-Tools/BrowserPlayButton/main/.github/youtube_logo.webp)](https://www.youtube.com/watch?v=pxHIHSQ-L0k).
