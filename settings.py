@@ -5,21 +5,22 @@
 from aqt.qt import *
 
 try:
-    from .grab_key import KeyPressDialog
+    from .ajt_common.grab_key import ShortCutGrabButton
 except ImportError:
-    from grab_key import KeyPressDialog
+    from ajt_common.grab_key import ShortCutGrabButton
 
 
 class SettingsDialog(QDialog):
     def __init__(self, config: dict = None, *args, **kwargs):
-        super(SettingsDialog, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         config = config or {}
         self.setMinimumSize(320, 64)
         self.setWindowTitle("Learn Now Settings")
-        self.shortcut = config.get('shortcut') or ''
-        self.change_shortcut_button = QPushButton(config.get('shortcut') or '[Not assigned]')
+        self.change_shortcut_button = ShortCutGrabButton(config.get('learn_shortcut'))
         self.setLayout(self.make_layout())
-        qconnect(self.change_shortcut_button.clicked, self.on_set_shortcut)
+
+    def shortcut(self) -> str:
+        return self.change_shortcut_button.value()
 
     def make_layout(self) -> QLayout:
         layout = QVBoxLayout()
@@ -41,18 +42,13 @@ class SettingsDialog(QDialog):
         qconnect(cancel_b.clicked, self.reject)
         return layout
 
-    def on_set_shortcut(self):
-        if (d := KeyPressDialog(self)).exec():
-            self.shortcut = d.shortcut or ''
-            self.change_shortcut_button.setText(d.shortcut or '[Not assigned]')
-
 
 def test_dialog():
     app = QApplication(sys.argv)
     w = SettingsDialog()
     w.show()
     code = app.exec()
-    print(f"{'Accepted' if w.result() else 'Rejected'}. Shortcut: \"{w.shortcut}\"")
+    print(f"{'Accepted' if w.result() else 'Rejected'}. Shortcut: \"{w.shortcut()}\"")
     sys.exit(code)
 
 
