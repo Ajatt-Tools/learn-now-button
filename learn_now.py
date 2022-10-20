@@ -39,25 +39,25 @@ def with_undo_entry(undo_msg: str):
     return decorator
 
 
-def format_message(accepted: Sized, skipped: Sized) -> str:
+def format_message(accepted: Sized, selected: Sized) -> str:
     msg = []
 
-    if len(accepted) > 0:
+    if (num_accepted := len(accepted)) > 0:
         msg.append(
             ngettext(
-                "%d card was put in the learning queue.",
-                "%d cards were put in the learning queue.",
-                len(accepted)
-            ) % len(accepted)
+                f"{num_accepted} card was put in the learning queue.",
+                f"{num_accepted} cards were put in the learning queue.",
+                num_accepted
+            )
         )
 
-    if len(skipped) > 0:
+    if (num_rejected := len(selected) - len(accepted)) > 0:
         msg.append(
             ngettext(
-                "%d card was ignored because it wasn't a new card.",
-                "%d cards were ignored because they were not new cards.",
-                len(skipped)
-            ) % len(skipped)
+                f"{num_rejected} card was ignored because it isn't a new card.",
+                f"{num_rejected} cards were ignored because they are not new cards.",
+                num_rejected
+            )
         )
 
     return ' '.join(msg)
@@ -117,8 +117,8 @@ def get_selected_cards(browser: Browser) -> Iterator[Card]:
 
 
 def on_put_in_learning(browser: Browser) -> None:
-    selected_cards = set(get_selected_cards(browser))
-    new_cards = set(filter(is_new, selected_cards))
+    selected_cards = list(get_selected_cards(browser))
+    new_cards = list(filter(is_new, selected_cards))
 
     if len(new_cards) < 1:
         notify_user("No new cards selected. Nothing to do.")
@@ -126,7 +126,7 @@ def on_put_in_learning(browser: Browser) -> None:
         CollectionOp(
             parent=browser, op=lambda col: put_cards_in_learning(col, new_cards)
         ).success(
-            lambda out: notify_user(format_message(new_cards, selected_cards - new_cards))
+            lambda out: notify_user(format_message(new_cards, selected_cards))
         ).run_in_background()
 
 

@@ -3,7 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import functools
-from typing import Sequence, Dict, Literal
+from gettext import ngettext
+from typing import Sequence, Dict, Literal, Sized
 
 from anki.cards import Card
 from anki.collection import Collection, OpChanges
@@ -15,6 +16,30 @@ from .config import config
 from .learn_now import notify_user, with_undo_entry, get_selected_cards
 
 Ease = Literal[1, 2, 3, 4]
+
+
+def format_message(answered: Sized, selected: Sized, button: str) -> str:
+    msg = []
+
+    if (num_answered := len(answered)) > 0:
+        msg.append(
+            ngettext(
+                f"{num_answered} card was answered {button}.",
+                f"{num_answered} cards were answered {button}.",
+                num_answered
+            )
+        )
+
+    if (num_rejected := len(selected) - len(answered)) > 0:
+        msg.append(
+            ngettext(
+                f"{num_rejected} card was ignored because it is suspended or buried.",
+                f"{num_rejected} cards were ignored because they are suspended or buried.",
+                num_rejected
+            )
+        )
+
+    return ' '.join(msg)
 
 
 @with_undo_entry(undo_msg="Grade cards from Browser")
@@ -38,7 +63,7 @@ def on_grade_cards(self: Browser, ease: Ease) -> None:
     CollectionOp(
         parent=self, op=lambda col: grade_cards(col, to_answer, ease)
     ).success(
-        lambda out: notify_user(f"Answered {len(to_answer)} out of {len(selected_cards)} cards.")
+        lambda out: notify_user(format_message(to_answer, selected_cards, answer_buttons()[ease]))
     ).run_in_background()
 
 
