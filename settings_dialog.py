@@ -28,6 +28,7 @@ class SettingsDialog(QDialog):
         self._grab_buttons = {
             key: ShortCutGrabButton(self._config.get(key))
             for key in grab_keys
+            if key.endswith('_shortcut')
         }
         self._button_box = QDialogButtonBox(OK | CANCEL)
         self.setLayout(self.make_layout())
