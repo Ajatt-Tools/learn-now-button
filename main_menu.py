@@ -6,14 +6,14 @@ from aqt import mw
 from aqt.qt import *
 
 from .ajt_common import menu_root_entry
-from .config import set_config_action, config, write_config
+from .config import set_config_action, config, write_config, get_default_config
 from .settings_dialog import SettingsDialog
 
 
 def on_open_settings():
-    dialog = SettingsDialog(mw, config=config)
+    dialog = SettingsDialog(mw, config=config, grab_keys=get_default_config().keys())
     if dialog.exec():
-        config['learn_shortcut'] = dialog.learn_shortcut()
+        config.update(dialog.as_dict())
         write_config()
 
 

@@ -56,6 +56,6 @@ def add_grade_now_buttons(self: Browser):
     for ease, text in answer_buttons().items():
         action = grade_menu.addAction(text)
         qconnect(action.triggered, functools.partial(on_grade_cards, self=self, ease=ease))
-        if shortcut := config.get(f'grade_{ease}'):
+        if shortcut := config.get(f'{text.lower()}_shortcut'):
             action.setShortcut(QKeySequence(shortcut))
             action.setText(f"{action.text()} ({shortcut})")
