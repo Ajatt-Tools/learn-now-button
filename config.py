@@ -23,7 +23,7 @@ def set_config_action(fn: Callable) -> None:
 def init():
     def on_open_settings():
         if (d := SettingsDialog(config)).exec():
-            config['shortcut'] = d.shortcut
+            config['learn_shortcut'] = d.shortcut()
             write_config()
 
     set_config_action(on_open_settings)

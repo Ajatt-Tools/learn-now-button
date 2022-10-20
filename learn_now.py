@@ -2,16 +2,17 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import functools
 import random
 import time
 from gettext import ngettext
-from typing import Sequence
+from typing import Sequence, Iterator
 from typing import Sized, Callable
 
 from anki.cards import Card
-from anki.collection import Collection
+from anki.collection import Collection, OpChanges
 from anki.decks import DeckConfigDict
-from aqt import gui_hooks, qconnect
+from aqt import qconnect
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.operations import ResultWithChanges
@@ -103,41 +104,36 @@ def put_in_learning(col: Collection, card: Card) -> None:
 
 
 @with_undo_entry(undo_msg="Put cards in learning")
-def put_cards_in_learning(col: Collection, cards: Sequence[Card]):
+def put_cards_in_learning(col: Collection, cards: Sequence[Card]) -> OpChanges:
     for card in cards:
         put_in_learning(col, card)
 
     # save the cards and add an undo entry.
-    col.update_cards(cards)
+    return col.update_cards(cards)
 
 
-def on_put_in_learning(self: Browser) -> None:
-    selected_cards = {self.col.get_card(cid) for cid in self.selected_cards()}
-    new_cards = {card for card in selected_cards if is_new(card)}
+def get_selected_cards(browser: Browser) -> Iterator[Card]:
+    return map(browser.col.get_card, set(browser.selected_cards()))
+
+
+def on_put_in_learning(browser: Browser) -> None:
+    selected_cards = set(get_selected_cards(browser))
+    new_cards = set(filter(is_new, selected_cards))
 
     if len(new_cards) < 1:
         notify_user("No new cards selected. Nothing to do.")
     else:
         CollectionOp(
-            parent=self, op=lambda col: put_cards_in_learning(col, new_cards)
+            parent=browser, op=lambda col: put_cards_in_learning(col, new_cards)
         ).success(
             lambda out: notify_user(format_message(new_cards, selected_cards - new_cards))
         ).run_in_background()
 
 
-def on_browser_menus_did_init(self: Browser) -> None:
+def add_learn_now_button(self: Browser):
     action = self.form.menu_Cards.addAction("Learn now")
-    qconnect(action.triggered, self.onBrowserPutToLearn)
+    qconnect(action.triggered, functools.partial(on_put_in_learning, browser=self))
 
-    if shortcut := config.get('shortcut'):
+    if shortcut := config.get('learn_shortcut'):
         action.setShortcut(QKeySequence(shortcut))
-        action.setText(f"Learn now ({shortcut})")
-
-
-######################################################################
-# Entry point
-######################################################################
-
-def init():
-    Browser.onBrowserPutToLearn = on_put_in_learning
-    gui_hooks.browser_menus_did_init.append(on_browser_menus_did_init)
+        action.setText(f"{action.text()} ({shortcut})")

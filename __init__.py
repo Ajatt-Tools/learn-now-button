@@ -1,4 +1,4 @@
-from . import learn_now, config
+from . import browser_menus, config
 
-learn_now.init()
 config.init()
+browser_menus.init()
