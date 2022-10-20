@@ -5,7 +5,7 @@
 from aqt import mw
 from aqt.qt import *
 
-from .settings import SettingsDialog
+from .settings_dialog import SettingsDialog
 
 
 def get_config() -> dict:
@@ -18,15 +18,6 @@ def write_config() -> None:
 
 def set_config_action(fn: Callable) -> None:
     return mw.addonManager.setConfigAction(__name__, fn)
-
-
-def init():
-    def on_open_settings():
-        if (d := SettingsDialog(config)).exec():
-            config['learn_shortcut'] = d.shortcut()
-            write_config()
-
-    set_config_action(on_open_settings)
 
 
 config = get_config()
