@@ -5,12 +5,26 @@
 [![Patreon](https://img.shields.io/badge/support-patreon-orange)](https://www.patreon.com/bePatron?u=43555128)
 [![Chat](https://img.shields.io/badge/matrix_chat-join-green.svg)](https://tatsumoto.neocities.org/blog/join-our-community.html)
 
-This addon adds a button to the card browser
-that immediately puts selected new cards in the learning queue.
-You can use it if you have a big sentence bank,
-and you find a good sentence that you want to learn right away.
+This addon adds new buttons to the card browser.
+The `Learn now` button immediately puts selected new cards in the learning queue.
+The `Grade now` button lets you grade selected cards without opening Reviewer.
 
 ![screenshot](https://user-images.githubusercontent.com/69171671/94028820-bc621180-fdab-11ea-8adb-fde78e8ca008.jpg)
+
+## Learn Now
+
+Moves selected new cards to the learning queue.
+The cards will be shown to you next time you go to the review screen.
+You can use this feature if you have a big collection of cards,
+and you find a card that you want to learn right away without manually repositioning it.
+
+## Grade Now
+
+Answers selected cards right from the Browser window.
+For example, imagine that you learn a new Japanese word.
+Then one day when reading a book in Japanese you see the word but can't recall it.
+In this case it would be rational to open Anki and fail the corresponding card.
+The card will be put in the relearning queue.
 
 ## Installation
 
