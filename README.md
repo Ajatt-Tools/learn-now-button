@@ -1,4 +1,4 @@
-# Learn Now Button
+# Learn now & Grade now
 
 [![Rate on AnkiWeb](https://glutanimate.com/logos/ankiweb-rate.svg)](https://ankiweb.net/shared/info/1021636467)
 ![GitHub](https://img.shields.io/github/license/Ajatt-Tools/learn-now-button)
@@ -9,7 +9,7 @@ This addon adds new buttons to the card browser.
 The `Learn now` button immediately puts selected new cards in the learning queue.
 The `Grade now` button lets you grade selected cards without opening Reviewer.
 
-![screenshot](https://user-images.githubusercontent.com/69171671/94028820-bc621180-fdab-11ea-8adb-fde78e8ca008.jpg)
+![screenshot](https://user-images.githubusercontent.com/69171671/197412891-fcef27e4-49ed-4175-a42d-a50ef2252151.png)
 
 ## Learn Now
 
@@ -37,7 +37,7 @@ git clone 'https://github.com/Ajatt-Tools/learn-now-button.git' ~/.local/share/A
 
 ## Configuration
 
-To configure the add-on, open the Anki Add-on Menu via "Tools" > "Add-ons" and select "Learn now Button".
+To configure the add-on, open the Anki Add-on Menu via "Tools" > "Add-ons" and select "Learn now & Grade now".
 Then click the "Config" button on the right-side of the screen.
 You can see how it's done on
 [![Youtube](https://raw.githubusercontent.com/Ajatt-Tools/BrowserPlayButton/main/.github/youtube_logo.webp)](https://www.youtube.com/watch?v=pxHIHSQ-L0k).
