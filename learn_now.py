@@ -6,7 +6,7 @@ import functools
 import random
 import time
 from gettext import ngettext
-from typing import Sequence, Iterator
+from typing import Sequence, Iterator, Optional
 from typing import Sized, Callable
 
 from anki.cards import Card
@@ -20,7 +20,6 @@ from aqt.qt import QKeySequence
 from aqt.utils import tooltip
 
 
-
 def notify_user(msg: str) -> None:
     tooltip(msg, period=7000)  # 7 seconds
     print(msg)
@@ -28,6 +27,7 @@ def notify_user(msg: str) -> None:
 
 def with_undo_entry(undo_msg: str):
     def decorator(function: Callable):
+        @functools.wraps(function)
         def wrapper(col: Collection, *args, **kwargs) -> ResultWithChanges:
             pos = col.add_custom_undo_entry(undo_msg)
             function(col, *args, **kwargs)

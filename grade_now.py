@@ -41,13 +41,28 @@ def format_message(answered: Sized, selected: Sized, button: str) -> str:
     return ' '.join(msg)
 
 
+def last_rep_day(card: Card) -> int:
+    return card.due - card.ivl
+
+
+def days_since_last_rep(col: Collection, card: Card) -> int:
+    return col.sched.today - last_rep_day(card)
+
+
+def adjust_intervals(col: Collection, cards: Sequence[Card]) -> OpChanges:
+    for card in cards:
+        if card.ivl > 0 and (passed := days_since_last_rep(col, card)) >= 0:
+            card.ivl = passed
+    return col.update_cards(cards)
+
+
 @with_undo_entry(undo_msg="Grade cards from Browser")
-def grade_cards(col: Collection, cards: Sequence[Card], ease: Ease) -> OpChanges:
+def grade_cards(col: Collection, cards: Sequence[Card], ease: Ease):
+    adjust_intervals(col, cards)
+
     for card in cards:
         card.start_timer()
         col.sched.answerCard(card, ease)
-    # save the cards and add an undo entry.
-    return col.update_cards(cards)
 
 
 def is_not_suspended_or_buried(card: Card) -> bool:
