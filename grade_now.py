@@ -50,8 +50,13 @@ def days_since_last_rep(col: Collection, card: Card) -> int:
 
 
 def adjust_intervals(col: Collection, cards: Sequence[Card]) -> OpChanges:
+    """
+    When answering a card prematurely, i.e. when it's not due yet,
+    its actual interval is smaller than the recorded one.
+    Intervals of such cards have to be reduced, making them match the reality.
+    """
     for card in cards:
-        if card.ivl > 0 and (passed := days_since_last_rep(col, card)) >= 0:
+        if card.ivl > (passed := days_since_last_rep(col, card)) >= 0:
             card.ivl = passed
     return col.update_cards(cards)
 
