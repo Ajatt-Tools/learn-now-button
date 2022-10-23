@@ -6,8 +6,10 @@ from .learn_now import add_learn_now_button
 
 
 def on_browser_menus_did_init(self: Browser) -> None:
-    add_learn_now_button(self)
-    add_grade_now_buttons(self)
+    from .config import config
+
+    add_learn_now_button(self, shortcut=config.get('learn_shortcut'))
+    add_grade_now_buttons(self, config=config)
 
 
 def init():

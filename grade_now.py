@@ -12,7 +12,6 @@ from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.qt import *
 
-from .config import config
 from .learn_now import notify_user, with_undo_entry, get_selected_cards
 
 Ease = Literal[1, 2, 3, 4]
@@ -76,7 +75,7 @@ def answer_buttons() -> Dict[Ease, str]:
     }
 
 
-def add_grade_now_buttons(self: Browser):
+def add_grade_now_buttons(self: Browser, *, config: Dict[str, str]):
     grade_menu = self.form.menu_Cards.addMenu("Grade now")
     for ease, text in answer_buttons().items():
         action = grade_menu.addAction(text)

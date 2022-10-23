@@ -19,7 +19,6 @@ from aqt.operations import ResultWithChanges
 from aqt.qt import QKeySequence
 from aqt.utils import tooltip
 
-from .config import config
 
 
 def notify_user(msg: str) -> None:
@@ -130,10 +129,10 @@ def on_put_in_learning(browser: Browser) -> None:
         ).run_in_background()
 
 
-def add_learn_now_button(self: Browser):
+def add_learn_now_button(self: Browser, *, shortcut: Optional[str]):
     action = self.form.menu_Cards.addAction("Learn now")
     qconnect(action.triggered, functools.partial(on_put_in_learning, browser=self))
 
-    if shortcut := config.get('learn_shortcut'):
+    if shortcut:
         action.setShortcut(QKeySequence(shortcut))
         action.setText(f"{action.text()} ({shortcut})")
