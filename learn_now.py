@@ -66,13 +66,17 @@ def is_new(card: Card) -> bool:
     return card.type == 0 and card.queue == 0
 
 
+def current_deck_id(card: Card) -> int:
+    return card.odid if card.odid > 0 else card.did
+
+
 def reps_to_graduate(col: Collection, card: Card) -> int:
     # magick number that tells anki how many times the card
     # has to be answered good to graduate
     # a * 1000 + b,
     # b - the number of reps left till graduation
     # a - the number of reps left today
-    group_conf: DeckConfigDict = col.decks.config_dict_for_deck_id(card.did)
+    group_conf: DeckConfigDict = col.decks.config_dict_for_deck_id(current_deck_id(card))
 
     reps_left = len(group_conf['new']['delays'])
 
@@ -99,7 +103,7 @@ def put_in_learning(col: Collection, card: Card) -> None:
     card.lapses = 0
 
     # set initial factor
-    card.factor = col.decks.config_dict_for_deck_id(card.did)['new']['initialFactor']
+    card.factor = col.decks.config_dict_for_deck_id(current_deck_id(card))['new']['initialFactor']
 
 
 @with_undo_entry(undo_msg="Put cards in learning")
