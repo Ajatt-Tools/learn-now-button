@@ -5,9 +5,11 @@
 import functools
 import random
 import time
+from collections.abc import Sequence, Iterator
+from collections.abc import Sized
 from gettext import ngettext
-from typing import Sequence, Iterator, Optional
-from typing import Sized, Callable
+from typing import Callable
+from typing import Optional
 
 from anki.cards import Card
 from anki.collection import Collection, OpChanges

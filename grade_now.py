@@ -3,8 +3,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import functools
+from collections.abc import Sequence, Sized
 from gettext import ngettext
-from typing import Sequence, Dict, Literal, Sized
+from typing import Literal
 
 from anki.cards import Card
 from anki.collection import Collection, OpChanges
@@ -87,7 +88,7 @@ def on_grade_cards(self: Browser, ease: Ease) -> None:
     ).run_in_background()
 
 
-def answer_buttons() -> Dict[Ease, str]:
+def answer_buttons() -> dict[Ease, str]:
     return {
         1: 'Again',
         2: 'Hard',
@@ -96,7 +97,7 @@ def answer_buttons() -> Dict[Ease, str]:
     }
 
 
-def add_grade_now_buttons(self: Browser, *, config: Dict[str, str]):
+def add_grade_now_buttons(self: Browser, *, config: dict[str, str]):
     grade_menu = self.form.menu_Cards.addMenu("Grade now")
     for ease, text in answer_buttons().items():
         action = grade_menu.addAction(text)

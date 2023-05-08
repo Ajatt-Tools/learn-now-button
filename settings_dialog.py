@@ -2,7 +2,7 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Sequence, Dict
+from collections.abc import Sequence
 
 from aqt.qt import *
 
@@ -34,7 +34,7 @@ class SettingsDialog(QDialog):
         self.setLayout(self.make_layout())
         self.setup_logic()
 
-    def as_dict(self) -> Dict[str, str]:
+    def as_dict(self) -> dict[str, str]:
         return {
             key: grab_button.value()
             for key, grab_button in self._grab_buttons.items()
