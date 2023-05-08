@@ -78,7 +78,8 @@ def is_not_suspended_or_buried(card: Card) -> bool:
 def on_grade_cards(self: Browser, ease: Ease) -> None:
     selected_cards = list(get_selected_cards(self))
     to_answer = list(filter(is_not_suspended_or_buried, selected_cards))
-
+    if not to_answer:
+        return notify_user("Nothing to do.")
     CollectionOp(
         parent=self, op=lambda col: grade_cards(col, to_answer, ease)
     ).success(
