@@ -19,7 +19,7 @@ def on_open_settings():
 
 def setup_mainwindow_menu():
     root_menu = menu_root_entry()
-    action = QAction("Learn Now Settings...", root_menu)
+    action = QAction("Learn Now Options...", root_menu)
     qconnect(action.triggered, on_open_settings)
     root_menu.addAction(action)
 
