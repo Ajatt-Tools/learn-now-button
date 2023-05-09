@@ -12,6 +12,7 @@ from anki.collection import Collection, OpChanges
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.qt import *
+from aqt.utils import showInfo
 
 from .learn_now import notify_user, with_undo_entry, get_selected_cards
 
@@ -76,9 +77,11 @@ def is_not_suspended_or_buried(card: Card) -> bool:
     return card.queue >= 0
 
 
-def on_grade_cards(self: Browser, ease: Ease) -> None:
+def on_grade_cards(self: Browser, ease: Ease):
     selected_cards = list(get_selected_cards(self))
     to_answer = list(filter(is_not_suspended_or_buried, selected_cards))
+    if self.col.sched.version < 3:
+        return showInfo("Aborted. Enable v3 scheduler in Preferences.")
     if not to_answer:
         return notify_user("Nothing to do.")
     CollectionOp(
