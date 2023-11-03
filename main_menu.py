@@ -5,7 +5,7 @@
 from aqt import mw
 from aqt.qt import *
 
-from .ajt_common import menu_root_entry
+from .ajt_common.about_menu import menu_root_entry
 from .config import set_config_action, config, write_config, get_default_config
 from .settings_dialog import SettingsDialog
 
