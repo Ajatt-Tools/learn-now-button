@@ -2,13 +2,13 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from collections.abc import Sequence
-
 from aqt.qt import *
 
 try:
+    from .protocols import LearnNowConfigProtocol
     from .ajt_common.grab_key import ShortCutGrabButton
 except ImportError:
+    from protocols import LearnNowConfigProtocol
     from ajt_common.grab_key import ShortCutGrabButton
 
 OK = QDialogButtonBox.StandardButton.Ok
@@ -20,47 +20,68 @@ def as_label(config_key: str) -> str:
 
 
 class SettingsDialog(QDialog):
-    def __init__(self, *args, config: dict = None, grab_keys: Sequence[str], **kwargs):
+    def __init__(self, *args, config: LearnNowConfigProtocol = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.setMinimumSize(320, 64)
         self.setWindowTitle("Learn Now Settings")
         self._config = config or {}
-        self._grab_buttons = {
-            key: ShortCutGrabButton(self._config.get(key))
-            for key in grab_keys
+        self._grab_buttons: dict[str, ShortCutGrabButton] = {
+            key: ShortCutGrabButton()
+            for key in self._config.keys()
             if key.endswith('_shortcut')
         }
+        self._checkboxes = {
+            key: QCheckBox(as_label(key))
+            for key in self._config.bool_keys()
+        }
         self._button_box = QDialogButtonBox(OK | CANCEL)
-        self.setLayout(self.make_layout())
-        self.setup_logic()
+        self._setup_layout()
+        self._setup_logic()
+        self._set_initial_values()
 
-    def as_dict(self) -> dict[str, str]:
-        return {
+    def cfg_as_dict(self) -> dict[str, Union[str, bool]]:
+        d1 = {
             key: grab_button.value()
             for key, grab_button in self._grab_buttons.items()
         }
+        d2 = {
+            key: checkbox.isChecked()
+            for key, checkbox in self._checkboxes.items()
+        }
+        return d1 | d2
 
-    def make_layout(self) -> QLayout:
+    def _setup_layout(self) -> None:
         layout = QVBoxLayout()
-        layout.addLayout(self.make_form())
+        layout.addLayout(self._make_form())
         layout.addWidget(self._button_box)
-        return layout
+        self.setLayout(layout)
 
-    def make_form(self) -> QLayout:
+    def _make_form(self) -> QLayout:
         layout = QFormLayout()
         for key, widget in self._grab_buttons.items():
             layout.addRow(as_label(key), widget)
+        for key, widget in self._checkboxes.items():
+            layout.addRow(widget)
         return layout
 
-    def setup_logic(self):
+    def _setup_logic(self):
         qconnect(self._button_box.accepted, self.accept)
         qconnect(self._button_box.rejected, self.reject)
         self._button_box.button(OK).setFocus()
 
+    def _set_initial_values(self):
+        for cfg_key, shortcut_but in self._grab_buttons.items():
+            shortcut_but.setValue(self._config[cfg_key])
+        for cfg_key, checkbox in self._checkboxes.items():
+            checkbox.setChecked(bool(self._config[cfg_key]))
 
-def test_dialog():
+
+def main():
+    class Cfg(LearnNowConfigProtocol):
+        pass
+
     app = QApplication(sys.argv)
-    w = SettingsDialog(grab_keys=('learn_shortcut', 'again_shortcut'))
+    w: QDialog = SettingsDialog(config=Cfg())
     w.show()
     code = app.exec()
     print(f"{'Accepted' if w.result() else 'Rejected'}.")
@@ -70,4 +91,4 @@ def test_dialog():
 
 
 if __name__ == '__main__':
-    test_dialog()
+    main()

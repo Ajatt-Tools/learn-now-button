@@ -86,6 +86,19 @@ def reps_to_graduate(col: Collection, card: Card) -> int:
     return reps_left * 1000 + reps_left
 
 
+def get_due_offset() -> int:
+    """
+    By default, the add-on adds some randomness to due dates
+    to make sure that the order of cards doesn't affect retention.
+    """
+    from .config import config
+    return (
+        random.randint(0, 100)
+        if config.randomize_card_due
+        else 0
+    )
+
+
 def put_in_learning(col: Collection, card: Card) -> None:
     # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
 
@@ -95,7 +108,7 @@ def put_in_learning(col: Collection, card: Card) -> None:
     card.ivl = 0
 
     # due date, like this: 1608939774
-    card.due = int(time.time() - random.randint(0, 100))
+    card.due = int(time.time() - get_due_offset())
 
     # number of reps left till graduation
     card.left = reps_to_graduate(col, card)

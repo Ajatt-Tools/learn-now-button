@@ -6,15 +6,17 @@ from aqt import mw
 from aqt.qt import *
 
 from .ajt_common.about_menu import menu_root_entry
-from .config import set_config_action, config, write_config, get_default_config
+from .ajt_common.addon_config import set_config_action
 from .settings_dialog import SettingsDialog
 
 
 def on_open_settings():
-    dialog = SettingsDialog(mw, config=config, grab_keys=get_default_config().keys())
+    from .config import config
+
+    dialog = SettingsDialog(mw, config=config)
     if dialog.exec():
-        config.update(dialog.as_dict())
-        write_config()
+        config.update(dialog.cfg_as_dict())
+        config.write_config()
 
 
 def setup_mainwindow_menu():

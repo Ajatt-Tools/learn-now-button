@@ -3,5 +3,6 @@
   "again_shortcut": "",
   "hard_shortcut": "",
   "good_shortcut": "",
-  "easy_shortcut": ""
+  "easy_shortcut": "",
+  "randomize_card_due": true
 }
