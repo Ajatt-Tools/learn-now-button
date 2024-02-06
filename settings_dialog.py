@@ -77,15 +77,25 @@ class SettingsDialog(QDialog):
 
 
 def main():
-    class Cfg(LearnNowConfigProtocol):
-        pass
+    class Cfg:
+        def bool_keys(self):
+            return "bool_one", "bool_two"
+
+        def keys(self):
+            return "key_one", "key_two", "one_shortcut", "two_shortcut"
+
+        def get(self, _key):
+            return "Ctrl+x"
+
+        def __getitem__(self, _item):
+            return "Ctrl+x"
 
     app = QApplication(sys.argv)
-    w: QDialog = SettingsDialog(config=Cfg())
+    w = SettingsDialog(config=Cfg())
     w.show()
     code = app.exec()
     print(f"{'Accepted' if w.result() else 'Rejected'}.")
-    for k, v in w.as_dict().items():
+    for k, v in w.cfg_as_dict().items():
         print(f'{k} = "{v}"')
     sys.exit(code)
 
