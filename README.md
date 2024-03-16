@@ -1,4 +1,4 @@
-# Learn now & Grade now
+# Card Management
 
 [![Rate on AnkiWeb](https://glutanimate.com/logos/ankiweb-rate.svg)](https://ankiweb.net/shared/info/1021636467)
 ![GitHub](https://img.shields.io/github/license/Ajatt-Tools/learn-now-button)
