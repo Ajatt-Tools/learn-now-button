@@ -30,7 +30,12 @@ The card will be put in the relearning queue.
 ## Reset cards
 
 Remove scheduling and learning information from selected cards.
-The cards will become new again.
+Turn selected cards back into new cards and erase any recorded lapse and repetition counts.
+
+It is very handy for dealing with [leeches](https://tatsumoto.neocities.org/blog/how-to-review#leeches)
+because you can reset a card and then change its contents
+to make sure that you won't forget it anymore, and then learn it again.
+
 Go into the card browser,
 select some cards,
 and choose "Cards" > "Reset selected cards."
