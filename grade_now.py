@@ -27,7 +27,7 @@ def format_message(answered: Sized, selected: Sized, button: str) -> str:
             ngettext(
                 f"{num_answered} card was answered {button}.",
                 f"{num_answered} cards were answered {button}.",
-                num_answered
+                num_answered,
             )
         )
 
@@ -36,11 +36,11 @@ def format_message(answered: Sized, selected: Sized, button: str) -> str:
             ngettext(
                 f"{num_rejected} card was ignored because it is suspended or buried.",
                 f"{num_rejected} cards were ignored because they are suspended or buried.",
-                num_rejected
+                num_rejected,
             )
         )
 
-    return ' '.join(msg)
+    return " ".join(msg)
 
 
 def last_rep_day(card: Card) -> int:
@@ -85,18 +85,19 @@ def on_grade_cards(self: Browser, ease: Ease):
     if not to_answer:
         return notify_user("Nothing to do.")
     CollectionOp(
-        parent=self, op=lambda col: grade_cards(col, to_answer, ease)
+        parent=self,
+        op=lambda col: grade_cards(col, to_answer, ease),
     ).success(
-        lambda out: notify_user(format_message(to_answer, selected_cards, answer_buttons()[ease]))
+        lambda out: notify_user(format_message(to_answer, selected_cards, answer_buttons()[ease])),
     ).run_in_background()
 
 
 def answer_buttons() -> dict[Ease, str]:
     return {
-        1: 'Again',
-        2: 'Hard',
-        3: 'Good',
-        4: 'Easy',
+        1: "Again",
+        2: "Hard",
+        3: "Good",
+        4: "Easy",
     }
 
 
@@ -105,6 +106,6 @@ def add_grade_now_buttons(self: Browser, *, config: dict[str, str]):
     for ease, text in answer_buttons().items():
         action = grade_menu.addAction(text)
         qconnect(action.triggered, functools.partial(on_grade_cards, self=self, ease=ease))
-        if shortcut := config.get(f'{text.lower()}_shortcut'):
+        if shortcut := config.get(f"{text.lower()}_shortcut"):
             action.setShortcut(QKeySequence(shortcut))
             action.setText(f"{action.text()} ({shortcut})")

@@ -9,7 +9,8 @@ License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 """
 
 import functools
-from typing import Sequence, Optional
+from typing import Optional
+from collections.abc import Sequence
 
 from anki.cards import CardId
 from anki.collection import Collection, OpChanges
@@ -113,6 +114,7 @@ def onDeckBrowserShowOptions(menu: QMenu, deck_id: int):
 
 
 # Hooks
+
 
 def setup():
     gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)

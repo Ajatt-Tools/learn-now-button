@@ -48,7 +48,7 @@ def format_message(accepted: Sized, selected: Sized) -> str:
             ngettext(
                 f"{num_accepted} card was put in the learning queue.",
                 f"{num_accepted} cards were put in the learning queue.",
-                num_accepted
+                num_accepted,
             )
         )
 
@@ -57,11 +57,11 @@ def format_message(accepted: Sized, selected: Sized) -> str:
             ngettext(
                 f"{num_rejected} card was ignored because it isn't a new card.",
                 f"{num_rejected} cards were ignored because they are not new cards.",
-                num_rejected
+                num_rejected,
             )
         )
 
-    return ' '.join(msg)
+    return " ".join(msg)
 
 
 def is_new(card: Card) -> bool:
@@ -80,9 +80,9 @@ def reps_to_graduate(col: Collection, card: Card) -> int:
     # a - the number of reps left today
     group_conf: DeckConfigDict = col.decks.config_dict_for_deck_id(current_deck_id(card))
 
-    reps_left = len(group_conf['new']['delays'])
+    reps_left = len(group_conf["new"]["delays"])
 
-    print('delays:', group_conf['new']['delays'], 'reps left:', reps_left)
+    print("delays:", group_conf["new"]["delays"], "reps left:", reps_left)
     return reps_left * 1000 + reps_left
 
 
@@ -92,11 +92,8 @@ def get_due_offset() -> int:
     to make sure that the order of cards doesn't affect retention.
     """
     from .config import config
-    return (
-        random.randint(0, 100)
-        if config.randomize_card_due
-        else 0
-    )
+
+    return random.randint(0, 100) if config.randomize_card_due else 0
 
 
 def put_in_learning(col: Collection, card: Card) -> None:
@@ -118,7 +115,7 @@ def put_in_learning(col: Collection, card: Card) -> None:
     card.lapses = 0
 
     # set initial factor
-    card.factor = col.decks.config_dict_for_deck_id(current_deck_id(card))['new']['initialFactor']
+    card.factor = col.decks.config_dict_for_deck_id(current_deck_id(card))["new"]["initialFactor"]
 
 
 @with_undo_entry(undo_msg="Put cards in learning")
@@ -141,9 +138,7 @@ def on_put_in_learning(browser: Browser) -> None:
     if len(new_cards) < 1:
         notify_user("No new cards selected. Nothing to do.")
     else:
-        CollectionOp(
-            parent=browser, op=lambda col: put_cards_in_learning(col, new_cards)
-        ).success(
+        CollectionOp(parent=browser, op=lambda col: put_cards_in_learning(col, new_cards)).success(
             lambda out: notify_user(format_message(new_cards, selected_cards))
         ).run_in_background()
 

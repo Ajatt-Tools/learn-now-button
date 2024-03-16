@@ -4,6 +4,7 @@
 
 from aqt.qt import *
 
+
 try:
     from .protocols import LearnNowConfigProtocol
     from .ajt_common.grab_key import ShortCutGrabButton
@@ -17,7 +18,7 @@ ADDON_NAME = "Card Management"
 
 
 def as_label(config_key: str) -> str:
-    return config_key.replace('_', ' ').capitalize()
+    return config_key.replace("_", " ").capitalize()
 
 
 class SettingsDialog(QDialog):
@@ -27,28 +28,17 @@ class SettingsDialog(QDialog):
         self.setWindowTitle(f"{ADDON_NAME} Options")
         self._config = config or {}
         self._grab_buttons: dict[str, ShortCutGrabButton] = {
-            key: ShortCutGrabButton()
-            for key in self._config.keys()
-            if key.endswith('_shortcut')
+            key: ShortCutGrabButton() for key in self._config.keys() if key.endswith("_shortcut")
         }
-        self._checkboxes = {
-            key: QCheckBox(as_label(key))
-            for key in self._config.bool_keys()
-        }
+        self._checkboxes = {key: QCheckBox(as_label(key)) for key in self._config.bool_keys()}
         self._button_box = QDialogButtonBox(OK | CANCEL)
         self._setup_layout()
         self._setup_logic()
         self._set_initial_values()
 
     def cfg_as_dict(self) -> dict[str, Union[str, bool]]:
-        d1 = {
-            key: grab_button.value()
-            for key, grab_button in self._grab_buttons.items()
-        }
-        d2 = {
-            key: checkbox.isChecked()
-            for key, checkbox in self._checkboxes.items()
-        }
+        d1 = {key: grab_button.value() for key, grab_button in self._grab_buttons.items()}
+        d2 = {key: checkbox.isChecked() for key, checkbox in self._checkboxes.items()}
         return d1 | d2
 
     def _setup_layout(self) -> None:
@@ -101,5 +91,5 @@ def main():
     sys.exit(code)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

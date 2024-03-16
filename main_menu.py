@@ -15,6 +15,7 @@ def on_open_settings():
 
     dialog = SettingsDialog(mw, config=config)
     if dialog.exec():
+        # if accepted
         config.update(dialog.cfg_as_dict())
         config.write_config()
 
