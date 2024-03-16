@@ -8,6 +8,7 @@
 This addon adds new buttons to the card browser.
 The `Learn now` button immediately puts selected new cards in the learning queue.
 The `Grade now` button lets you grade selected cards without opening Reviewer.
+The `Reset selected cards` button lets you delete scheduling and learning information from selected cards.
 
 ![screenshot](https://user-images.githubusercontent.com/69171671/197412891-fcef27e4-49ed-4175-a42d-a50ef2252151.png)
 
@@ -25,6 +26,14 @@ For example, imagine that you learn a new Japanese word.
 Then one day when reading a book in Japanese you see the word but can't recall it.
 In this case it would be rational to open Anki and fail the corresponding card.
 The card will be put in the relearning queue.
+
+## Reset cards
+
+Remove scheduling and learning information from selected cards.
+The cards will become new again.
+Go into the card browser,
+select some cards,
+and choose "Cards" > "Reset selected cards."
 
 ## Installation
 
