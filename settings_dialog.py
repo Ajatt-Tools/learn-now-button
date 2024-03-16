@@ -13,6 +13,7 @@ except ImportError:
 
 OK = QDialogButtonBox.StandardButton.Ok
 CANCEL = QDialogButtonBox.StandardButton.Cancel
+ADDON_NAME = "Card Management"
 
 
 def as_label(config_key: str) -> str:
@@ -23,7 +24,7 @@ class SettingsDialog(QDialog):
     def __init__(self, *args, config: LearnNowConfigProtocol = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.setMinimumSize(320, 64)
-        self.setWindowTitle("Learn Now Settings")
+        self.setWindowTitle(f"{ADDON_NAME} Options")
         self._config = config or {}
         self._grab_buttons: dict[str, ShortCutGrabButton] = {
             key: ShortCutGrabButton()

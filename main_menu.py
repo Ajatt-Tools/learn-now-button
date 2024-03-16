@@ -7,7 +7,7 @@ from aqt.qt import *
 
 from .ajt_common.about_menu import menu_root_entry
 from .ajt_common.addon_config import set_config_action
-from .settings_dialog import SettingsDialog
+from .settings_dialog import SettingsDialog, ADDON_NAME
 
 
 def on_open_settings():
@@ -21,7 +21,7 @@ def on_open_settings():
 
 def setup_mainwindow_menu():
     root_menu = menu_root_entry()
-    action = QAction("Learn Now Options...", root_menu)
+    action = QAction(f"{ADDON_NAME} Options...", root_menu)
     qconnect(action.triggered, on_open_settings)
     root_menu.addAction(action)
 
