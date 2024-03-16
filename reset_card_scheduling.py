@@ -103,9 +103,8 @@ def onDeckBrowserResetCards(deck_id: DeckId):
 
 
 def onBrowserSetupMenus(self: Browser):
-    menu = self.form.menu_Cards
-    a = menu.addAction("Reset selected cards")
-    a.triggered.connect(functools.partial(onBrowserResetCards, self))
+    action = self.form.menu_Cards.addAction("Reset selected cards")
+    action.triggered.connect(functools.partial(onBrowserResetCards, self))
 
 
 def onDeckBrowserShowOptions(menu: QMenu, deck_id: int):
