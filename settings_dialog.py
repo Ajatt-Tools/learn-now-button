@@ -21,6 +21,10 @@ def as_label(config_key: str) -> str:
     return config_key.replace("_", " ").capitalize()
 
 
+def make_checkboxes(config: LearnNowConfigProtocol):
+    return {key: QCheckBox(as_label(key)) for key in config.bool_keys()}
+
+
 class SettingsDialog(QDialog):
     def __init__(self, *args, config: LearnNowConfigProtocol = None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,7 +34,7 @@ class SettingsDialog(QDialog):
         self._grab_buttons: dict[str, ShortCutGrabButton] = {
             key: ShortCutGrabButton() for key in self._config.keys() if key.endswith("_shortcut")
         }
-        self._checkboxes = {key: QCheckBox(as_label(key)) for key in self._config.bool_keys()}
+        self._checkboxes = make_checkboxes(config)
         self._button_box = QDialogButtonBox(OK | CANCEL)
         self._setup_layout()
         self._setup_logic()
