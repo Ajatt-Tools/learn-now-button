@@ -23,7 +23,7 @@ from aqt.utils import tooltip
 
 
 def notify_user(msg: str) -> None:
-    tooltip(msg, period=7000)  # 7 seconds
+    tooltip(msg, period=7_000)  # 7 seconds
     print(msg)
 
 

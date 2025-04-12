@@ -17,6 +17,7 @@ from aqt.utils import showInfo
 from .learn_now import notify_user, with_undo_entry, get_selected_cards
 
 Ease = Literal[1, 2, 3, 4]
+UNDO_QUEUE_LIMIT = 30  # https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-45/11212
 
 
 def format_message(answered: Sized, selected: Sized, button: str) -> str:
@@ -84,6 +85,8 @@ def on_grade_cards(self: Browser, ease: Ease):
         return showInfo("Aborted. Enable v3 scheduler in Preferences.")
     if not to_answer:
         return notify_user("Nothing to do.")
+    if len(to_answer) > UNDO_QUEUE_LIMIT:
+        return notify_user(f"Can't perform this operation on more than {UNDO_QUEUE_LIMIT} cards at once.")
     CollectionOp(
         parent=self,
         op=lambda col: grade_cards(col, to_answer, ease),
