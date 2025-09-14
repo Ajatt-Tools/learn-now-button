@@ -104,6 +104,9 @@ def put_in_learning(col: Collection, card: Card) -> None:
     card.queue = 1
     card.ivl = 0
 
+    # save card's original position
+    card.original_position = card.odue if card.odid else card.due
+
     # due date, like this: 1608939774
     card.due = int(time.time() - get_due_offset())
 
