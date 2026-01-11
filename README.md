@@ -45,8 +45,9 @@ and choose "Cards" > "Reset selected cards."
 Download the latest version of the addon from [AnkiWeb](https://ankiweb.net/shared/info/1021636467),
 or install it manually using `git`:
 
-```
-git clone 'https://github.com/Ajatt-Tools/learn-now-button.git' ~/.local/share/Anki2/addons21/learnnow
+```bash
+git clone 'https://github.com/Ajatt-Tools/learn-now-button.git'
+ln -sr learn-now-button/card_management ~/.local/share/Anki2/addons21/card_management
 ```
 
 ## Configuration
