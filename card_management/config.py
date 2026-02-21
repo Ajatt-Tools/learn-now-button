@@ -10,5 +10,9 @@ class LearnNowConfig(AddonConfigManager):
     def randomize_card_due(self) -> bool:
         return bool(self["randomize_card_due"])
 
+    @property
+    def learn_shortcut(self) -> str:
+        return self["learn_shortcut"]
+
 
 config = LearnNowConfig()
