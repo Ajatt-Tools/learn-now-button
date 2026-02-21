@@ -45,6 +45,7 @@ dependencies = [
   "aqt",
   "pyupgrade",
   "beartype",
+  "black",
 ]
 python = "3.9"
 
