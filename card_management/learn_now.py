@@ -86,17 +86,15 @@ def reps_to_graduate(col: Collection, card: Card) -> int:
     return reps_left * 1000 + reps_left
 
 
-def get_due_offset() -> int:
+def get_due_offset(randomize: bool) -> int:
     """
     By default, the add-on adds some randomness to due dates
     to make sure that the order of cards doesn't affect retention.
     """
-    from .config import config
-
-    return random.randint(0, 100) if config.randomize_card_due else 0
+    return random.randint(0, 100) if randomize else 0
 
 
-def put_in_learning(col: Collection, card: Card) -> None:
+def put_in_learning(col: Collection, card: Card, randomize: bool) -> None:
     # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
 
     # learn card
@@ -108,7 +106,7 @@ def put_in_learning(col: Collection, card: Card) -> None:
     card.original_position = card.odue if card.odid else card.due
 
     # due date, like this: 1608939774
-    card.due = int(time.time() - get_due_offset())
+    card.due = int(time.time() - get_due_offset(randomize))
 
     # number of reps left till graduation
     card.left = reps_to_graduate(col, card)
@@ -123,8 +121,12 @@ def put_in_learning(col: Collection, card: Card) -> None:
 
 @with_undo_entry(undo_msg="Put cards in learning")
 def put_cards_in_learning(col: Collection, cards: Sequence[Card]) -> OpChanges:
+    from .config import config
+    randomize = config.randomize_card_due
+    if randomize:
+        random.shuffle(cards)
     for card in cards:
-        put_in_learning(col, card)
+        put_in_learning(col, card, randomize)
 
     # save the cards and add an undo entry.
     return col.update_cards(cards)
