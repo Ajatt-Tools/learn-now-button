@@ -9,14 +9,14 @@ License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 """
 
 import functools
-from typing import Optional
 from collections.abc import Sequence
+from typing import Optional
 
 from anki.cards import CardId
 from anki.collection import Collection, OpChanges
 from anki.consts import QUEUE_TYPE_NEW
 from anki.decks import DeckId
-from aqt import mw, gui_hooks
+from aqt import gui_hooks, mw
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.qt import QMenu, qconnect

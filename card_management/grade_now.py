@@ -14,7 +14,7 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import showInfo
 
-from .learn_now import notify_user, with_undo_entry, get_selected_cards
+from .learn_now import get_selected_cards, notify_user, with_undo_entry
 
 Ease = Literal[1, 2, 3, 4]
 UNDO_QUEUE_LIMIT = 30  # https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-45/11212
@@ -65,7 +65,7 @@ def adjust_intervals(col: Collection, cards: Sequence[Card]) -> OpChanges:
 
 
 @with_undo_entry(undo_msg="Grade cards from Browser")
-def grade_cards(col: Collection, cards: Sequence[Card], ease: Ease):
+def grade_cards(col: Collection, cards: Sequence[Card], ease: Ease) -> None:
     adjust_intervals(col, cards)
 
     for card in cards:
@@ -78,15 +78,19 @@ def is_not_suspended_or_buried(card: Card) -> bool:
     return card.queue >= 0
 
 
-def on_grade_cards(self: Browser, ease: Ease):
+def on_grade_cards(self: Browser, ease: Ease) -> None:
     selected_cards = list(get_selected_cards(self))
     to_answer = list(filter(is_not_suspended_or_buried, selected_cards))
     if self.col.sched.version < 3:
-        return showInfo("Aborted. Enable v3 scheduler in Preferences.")
+        showInfo("Aborted. Enable v3 scheduler in Preferences.")
+        return
     if not to_answer:
-        return notify_user("Nothing to do.")
+        notify_user("Nothing to do.")
+        return
     if len(to_answer) > UNDO_QUEUE_LIMIT:
-        return notify_user(f"Can't perform this operation on more than {UNDO_QUEUE_LIMIT} cards at once.")
+        notify_user(f"Can't perform this operation on more than {UNDO_QUEUE_LIMIT} cards at once.")
+        return
+
     CollectionOp(
         parent=self,
         op=lambda col: grade_cards(col, to_answer, ease),

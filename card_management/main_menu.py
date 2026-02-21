@@ -7,12 +7,11 @@ from aqt.qt import *
 
 from .ajt_common.about_menu import menu_root_entry
 from .ajt_common.addon_config import set_config_action
-from .settings_dialog import SettingsDialog, ADDON_NAME
+from .config import config
+from .settings_dialog import ADDON_NAME, SettingsDialog
 
 
 def on_open_settings():
-    from .config import config
-
     dialog = SettingsDialog(mw, config=config)
     if dialog.exec():
         # if accepted
