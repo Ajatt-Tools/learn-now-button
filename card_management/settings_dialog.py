@@ -34,6 +34,7 @@ class SettingsDialog(QDialog):
         self._setup_layout()
         self._setup_logic()
         self._set_initial_values()
+        self._add_tooltips()
 
     def cfg_as_dict(self) -> dict[str, Union[str, bool]]:
         d1 = {key: grab_button.value() for key, grab_button in self._grab_buttons.items()}
@@ -64,3 +65,10 @@ class SettingsDialog(QDialog):
             shortcut_but.setValue(self._config[cfg_key])
         for cfg_key, checkbox in self._checkboxes.items():
             checkbox.setChecked(bool(self._config[cfg_key]))
+
+    def _add_tooltips(self) -> None:
+        self._checkboxes["randomize_card_due"].setToolTip(
+            "When you add new cards to the learning queue,\n"
+            "their order will be random instead of following\n"
+            "the order shown in the Anki Browser."
+        )
