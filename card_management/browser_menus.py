@@ -16,9 +16,9 @@ from .config import LearnNowConfig
 from .grade_now import Ease, answer_buttons, on_grade_cards
 from .learn_now import (
     current_deck_id,
+    filter_cards,
     format_message,
     get_selected_cards,
-    is_new,
     notify_user,
     reps_to_graduate,
 )
@@ -121,7 +121,7 @@ class BrowserMenus:
     def _on_put_in_learning(self, browser: Browser) -> None:
         """Snapshot the Browser selection and schedule eligible new cards."""
         selected_cards = list(get_selected_cards(browser))
-        new_cards = list(filter(is_new, selected_cards))
+        new_cards = filter_cards(selected_cards, skip_siblings=self._cfg.skip_sibling_cards)
 
         if len(new_cards) < 1:
             notify_user("No new cards selected. Nothing to do.")

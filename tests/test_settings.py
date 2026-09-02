@@ -15,17 +15,18 @@ from playground.no_anki_config import NoAnkiConfigView
 class TestSettingsDialog:
     """Verify the dialog accepts concrete standalone settings and preserves unsaved state."""
 
-    @pytest.mark.parametrize("randomize", [False, True])
-    def test_round_trip(self, qapp: QApplication, no_anki_config: NoAnkiConfigView, randomize: bool) -> None:
+    @pytest.mark.parametrize("enabled", [False, True])
+    @pytest.mark.parametrize("key", ["randomize_card_due", "skip_sibling_cards"])
+    def test_round_trip(self, qapp: QApplication, no_anki_config: NoAnkiConfigView, enabled: bool, key: str) -> None:
         """Read all default keys and serialize edited controls without updating config yet."""
-        no_anki_config["randomize_card_due"] = randomize
+        no_anki_config[key] = enabled
         dialog = SettingsDialog(config=no_anki_config)
         assert dialog.cfg_as_dict() == no_anki_config.dict_copy()
-        dialog._checkboxes["randomize_card_due"].setChecked(not randomize)
+        dialog._checkboxes[key].setChecked(not enabled)
         expected = no_anki_config.dict_copy()
-        expected["randomize_card_due"] = not randomize
+        expected[key] = not enabled
         assert dialog.cfg_as_dict() == expected
-        assert no_anki_config.randomize_card_due is randomize
+        assert no_anki_config[key] is enabled
         dialog.close()
 
 

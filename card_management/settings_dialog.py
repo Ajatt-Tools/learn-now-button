@@ -77,3 +77,8 @@ class SettingsDialog(QDialog):
             "their order will be random instead of following\n"
             "the order shown in the Anki Browser."
         )
+        self._checkboxes["skip_sibling_cards"].setToolTip(
+            "When learning selected cards, keep only one new card per note.\n"
+            "Choose the eligible selected sibling with the lowest template number.\n"
+            "Skipped siblings remain new. Disable this to learn all selected new siblings."
+        )

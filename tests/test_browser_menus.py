@@ -1,6 +1,7 @@
 # Copyright: Ajatt-Tools and contributors; https://github.com/Ajatt-Tools
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from collections.abc import Sequence
 from unittest.mock import create_autospec
 
 import pytest
@@ -15,12 +16,34 @@ from tests.helpers import (
     capture_collection_op,
     complete_collection_op,
     select_new_cards,
+    select_sibling_cards,
     snapshot_cards,
 )
 
 
 class TestBrowserMenus:
     """Exercise the real QAction signals connected by the refactored controller."""
+
+    @pytest.mark.parametrize("skip_siblings,expected", [(False, (1, 1)), (True, (0, 1))])
+    def test_sibling_worker(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        browser: Browser,
+        anki_collection: Collection,
+        no_anki_config: NoAnkiConfigView,
+        skip_siblings: bool,
+        expected: Sequence[int],
+    ) -> None:
+        """Apply sibling settings before persistence and report the accepted and rejected counts."""
+        cards = select_sibling_cards(browser, anki_collection)
+        no_anki_config["skip_sibling_cards"] = skip_siblings
+        factory = capture_collection_op(monkeypatch, browser_menus)
+        notify = create_autospec(browser_menus.notify_user)
+        monkeypatch.setattr(browser_menus, "notify_user", notify)
+        BrowserMenus(no_anki_config)._on_put_in_learning(browser)
+        assert complete_collection_op(factory, anki_collection).card is True
+        assert [card.queue for card in snapshot_cards(anki_collection, cards)] == list(expected)
+        notify.assert_called_once_with(browser_menus.format_message(cards[: sum(expected)], cards))
 
     @pytest.mark.parametrize("count", [1, 2])
     def test_learning_worker_and_success(

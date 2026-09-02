@@ -28,6 +28,28 @@ class CardSnapshot(NamedTuple):
     original_position: int | None
 
 
+class FilterCardSpec(NamedTuple):
+    """Describe a card's note, template, and scheduling state for filtering tests."""
+
+    card_id: int
+    note_id: int
+    ordinal: int
+    card_type: int = 0
+    queue: int = 0
+
+
+@beartype
+def mock_filter_cards(specs: Sequence[FilterCardSpec]) -> Sequence[Card]:
+    """Build autospecced cards from independent, immutable scheduling scenarios."""
+    cards = []
+    for spec in specs:
+        card = create_autospec(Card, instance=True)
+        card.id, card.nid, card.ord = spec.card_id, spec.note_id, spec.ordinal
+        card.type, card.queue = spec.card_type, spec.queue
+        cards.append(card)
+    return cards
+
+
 @beartype
 def capture_collection_op(monkeypatch: pytest.MonkeyPatch, module: ModuleType) -> MagicMock:
     """Capture worker and success callbacks without starting an Anki background thread."""
@@ -63,6 +85,19 @@ def select_new_cards(browser: Browser, col: Collection, count: int) -> Sequence[
     """Populate the Browser's mocked selection with cards from the supplied real collection."""
     cards = make_new_cards(col, count)
     browser.col = col
+    browser.selected_cards.return_value = [card.id for card in cards]
+    return cards
+
+
+@beartype
+def select_sibling_cards(browser: Browser, col: Collection) -> Sequence[Card]:
+    """Create a two-template note and select both of its cards in reverse template order."""
+    model = col.models.by_name("Basic")
+    template = col.models.new_template("Reverse")
+    template.update(qfmt="{{Back}}", afmt="{{Front}}")
+    col.models.add_template(model, template)
+    col.models.update_dict(model)
+    cards = sorted(select_new_cards(browser, col, 1), key=lambda card: card.ord, reverse=True)
     browser.selected_cards.return_value = [card.id for card in cards]
     return cards
 
