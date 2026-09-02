@@ -4,5 +4,6 @@
   "hard_shortcut": "",
   "good_shortcut": "",
   "easy_shortcut": "",
-  "randomize_card_due": true
+  "randomize_card_due": true,
+  "skip_sibling_cards": true
 }

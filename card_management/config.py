@@ -11,6 +11,10 @@ class LearnNowConfig(AddonConfigManager):
         return bool(self["randomize_card_due"])
 
     @property
+    def skip_sibling_cards(self) -> bool:
+        return bool(self["skip_sibling_cards"])
+
+    @property
     def learn_shortcut(self) -> str:
         return self["learn_shortcut"]
 

@@ -54,8 +54,8 @@ def format_message(accepted: Sized, selected: Sized) -> str:
     if (num_rejected := len(selected) - len(accepted)) > 0:
         msg.append(
             ngettext(
-                f"{num_rejected} card was ignored because it isn't a new card.",
-                f"{num_rejected} cards were ignored because they are not new cards.",
+                f"{num_rejected} card was ignored because it isn't a new card or its sibling was chosen instead.",
+                f"{num_rejected} cards were ignored because they are not new cards or their siblings were chosen instead.",
                 num_rejected,
             )
         )
@@ -135,15 +135,35 @@ def get_selected_cards(browser: Browser) -> Iterator[Card]:
     return map(browser.col.get_card, set(browser.selected_cards()))
 
 
+def filter_cards(cards: Iterator[Card], *, skip_siblings: bool) -> list[Card]:
+    """
+    Keep only new cards, and, if `skip_siblings` is enabled,
+    keep only the sibling with the lowest `ord` per note (nid).
+    """
+
+    if not skip_siblings:
+        return [card for card in cards if is_new(card)]
+
+    lowest_ord_by_nid: dict[int, Card] = {}
+
+    for card in cards:
+        if not is_new(card):
+            continue
+        current_best = lowest_ord_by_nid.get(card.nid)
+        if current_best is None or card.ord < current_best.ord:
+            lowest_ord_by_nid[card.nid] = card
+
+    return list(lowest_ord_by_nid.values())
+
 def on_put_in_learning(browser: Browser) -> None:
     selected_cards = list(get_selected_cards(browser))
-    new_cards = list(filter(is_new, selected_cards))
+    cards_to_learn = filter_cards(selected_cards, skip_siblings=config.skip_sibling_cards)
 
-    if len(new_cards) < 1:
+    if len(cards_to_learn) < 1:
         notify_user("No new cards selected. Nothing to do.")
     else:
-        CollectionOp(parent=browser, op=lambda col: put_cards_in_learning(col, new_cards)).success(
-            lambda out: notify_user(format_message(new_cards, selected_cards))
+        CollectionOp(parent=browser, op=lambda col: put_cards_in_learning(col, cards_to_learn)).success(
+            lambda out: notify_user(format_message(cards_to_learn, selected_cards))
         ).run_in_background()
 
 
