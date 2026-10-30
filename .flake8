@@ -1,0 +1,11 @@
+# Adapted from https://github.com/Ajatt-Tools/mergenotes/blob/b83f34948238a79e8f7f08c3a1a256c0f51908d6/.flake8
+[flake8]
+max-line-length = 120
+# Black deliberately adds spaces around complex slices.
+# https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#slices
+extend-ignore = E203
+# Shared code and standalone scripts have a separate scope, and Hatch regenerates __about__.py.
+extend-exclude = card_management/ajt_common,playground,card_management/__about__.py
+# Anki's Qt compatibility module intentionally re-exports the supported Qt binding.
+per-file-ignores =
+    card_management/*: F403,F405
