@@ -1,3 +1,6 @@
+# Copyright: Ajatt-Tools and contributors; https://github.com/Ajatt-Tools
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from aqt import gui_hooks, mw
 
 from .ajt_common.addon_config import set_config_action
