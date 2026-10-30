@@ -40,12 +40,9 @@ version-file = "card_management/__about__.py"
 [tool.hatch.envs.dev]
 dependencies = [
   "mypy>=1.0.0",
-  "isort",
   "pytest",
   "aqt>=26.9",
-  "pyupgrade",
   "beartype",
-  "black",
 ]
 python = "3.10"
 
@@ -56,9 +53,6 @@ python = ["3.10", ]
 [tool.hatch.envs.dev.scripts]
 # run as `hatch run dev:scriptname`
 check = "mypy --install-types --non-interactive {args:card_management tests}"
-test = "pytest"
-testv = "pytest -vvv -s"
-format = "$(git rev-parse --show-toplevel)/scripts/format.sh"
 package = "$(git rev-parse --show-toplevel)/scripts/package.sh"
 
 [tool.coverage.run]
@@ -118,3 +112,29 @@ randomize = true
 # Anki add-on code must keep working on Python 3.10.
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10", ]
+
+# https://hatch.pypa.io/latest/how-to/static-analysis/behavior/
+[tool.hatch.envs.hatch-check-fmt]
+dependencies = [
+    "black>=26.10",
+    "isort>=9.0",
+    "pyupgrade>=3.22",
+]
+
+# https://hatch.pypa.io/latest/config/internal/static-analysis/#scripts
+[tool.hatch.envs.hatch-check-fmt.scripts]
+format-check = [
+    "bash \"$(git rev-parse --show-toplevel)/scripts/format.sh\" --check",
+]
+format-fix = [
+    # run as: hatch check fmt --fix
+    "bash \"$(git rev-parse --show-toplevel)/scripts/format.sh\" ",
+]
+
+[tool.hatch.envs.hatch-check-code]
+dependencies = ["flake8"]
+
+[tool.hatch.envs.hatch-check-code.scripts]
+# Keep lint scope and exceptions in .flake8 rather than duplicating them in CI.
+lint-check = "flake8 {args:card_management tests}"
+lint-fix = "lint-check"
