@@ -1,10 +1,9 @@
+from aqt import gui_hooks, mw
+
 from .ajt_common.addon_config import set_config_action
 from .browser_menus import BrowserMenus
 from .config import LearnNowConfig, get_global_config
 from .main_menu import MainMenu
-from aqt import mw
-from aqt import gui_hooks
-
 from .reset_card_scheduling import on_browser_setup_menus, on_deck_browser_show_options
 
 

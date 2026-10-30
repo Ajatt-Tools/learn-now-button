@@ -8,12 +8,11 @@ from collections.abc import MutableSequence
 
 import anki.collection
 from anki.cards import Card
-from aqt import gui_hooks
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.qt import *
 
-from .config import LearnNowConfig, get_global_config
+from .config import LearnNowConfig
 from .grade_now import Ease, answer_buttons, on_grade_cards
 from .learn_now import (
     current_deck_id,
@@ -130,9 +129,3 @@ class BrowserMenus:
                 parent=browser,
                 op=lambda col: self._put_cards_in_learning(col, new_cards),
             ).success(lambda out: notify_user(format_message(new_cards, selected_cards))).run_in_background()
-
-
-def init() -> None:
-    """Register the shared Browser menu controller."""
-    menus = BrowserMenus(cfg=get_global_config())
-    gui_hooks.browser_menus_did_init.append(menus.on_browser_menus_did_init)

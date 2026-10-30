@@ -16,7 +16,7 @@ from anki.cards import CardId
 from anki.collection import Collection, OpChanges
 from anki.consts import QUEUE_TYPE_NEW
 from anki.decks import DeckId
-from aqt import gui_hooks, mw
+from aqt import mw
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.qt import QMenu, qconnect
@@ -24,7 +24,7 @@ from aqt.utils import askUser, tooltip
 
 
 # Col is a collection of cards, cids are the ids of the cards to reset.
-def resetSelectedCardScheduling(col: Collection, cids: Sequence[CardId], undo_msg: Optional[str] = None) -> OpChanges:
+def reset_selected_card_scheduling(col: Collection, cids: Sequence[CardId], undo_msg: str | None = None) -> OpChanges:
     """
     Resets statistics for selected cards,
     and removes them from learning queues.
@@ -48,7 +48,7 @@ def resetSelectedCardScheduling(col: Collection, cids: Sequence[CardId], undo_ms
     return col.merge_undo_entries(pos)
 
 
-def onBrowserResetCards(self: Browser):
+def on_browser_reset_cards(self: Browser) -> None:
     cids = self.selected_cards()
     if not cids:
         tooltip("No cards selected.")
@@ -65,13 +65,13 @@ def onBrowserResetCards(self: Browser):
 
     CollectionOp(
         parent=self,
-        op=lambda col: resetSelectedCardScheduling(col, cids),
+        op=lambda col: reset_selected_card_scheduling(col, cids),
     ).success(
         lambda changes: tooltip(f"{len(cids)} cards reset.", parent=self),
     ).run_in_background()
 
 
-def onDeckBrowserResetCards(deck_id: DeckId):
+def on_deck_browser_reset_cards(deck_id: DeckId) -> None:
     assert mw, "Main window should be available."
 
     if mw.col.decks.is_filtered(deck_id):
@@ -97,25 +97,17 @@ def onDeckBrowserResetCards(deck_id: DeckId):
 
     CollectionOp(
         parent=mw,
-        op=lambda col: resetSelectedCardScheduling(col, cids, undo_msg="Reset selected deck"),
+        op=lambda col: reset_selected_card_scheduling(col, cids, undo_msg="Reset selected deck"),
     ).success(
         lambda changes: tooltip(f"{len(cids)} card(s) reset.", parent=mw),
     ).run_in_background()
 
 
-def onBrowserSetupMenus(self: Browser):
+def on_browser_setup_menus(self: Browser) -> None:
     action = self.form.menu_Cards.addAction("Reset selected cards")
-    action.triggered.connect(functools.partial(onBrowserResetCards, self))
+    action.triggered.connect(functools.partial(on_browser_reset_cards, self))
 
 
-def onDeckBrowserShowOptions(menu: QMenu, deck_id: int):
+def on_deck_browser_show_options(menu: QMenu, deck_id: int) -> None:
     action = menu.addAction("Reset deck")
-    qconnect(action.triggered, functools.partial(onDeckBrowserResetCards, deck_id))
-
-
-# Hooks
-
-
-def setup():
-    gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)
-    gui_hooks.deck_browser_will_show_options_menu.append(onDeckBrowserShowOptions)
+    qconnect(action.triggered, functools.partial(on_deck_browser_reset_cards, deck_id))

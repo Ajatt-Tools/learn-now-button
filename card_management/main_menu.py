@@ -6,8 +6,7 @@ from aqt import mw
 from aqt.qt import *
 
 from .ajt_common.about_menu import menu_root_entry
-from .ajt_common.addon_config import set_config_action
-from .config import LearnNowConfig, get_global_config
+from .config import LearnNowConfig
 from .settings_dialog import ADDON_NAME, SettingsDialog
 
 
@@ -27,9 +26,3 @@ class MainMenu:
         action = QAction(f"{ADDON_NAME} Options...", root_menu)
         qconnect(action.triggered, self.on_open_settings)
         root_menu.addAction(action)
-
-
-def init() -> None:
-    menus = MainMenu(cfg=get_global_config())
-    set_config_action(menus.on_open_settings)
-    menus.setup_mainwindow_menu()

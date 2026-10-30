@@ -8,6 +8,7 @@ from aqt.qt import QApplication
 from card_management.settings_dialog import SettingsDialog
 from playground.no_anki_config import NoAnkiConfigView
 
+
 def main() -> None:
     """Preview the settings dialog using the actual default configuration."""
     app = QApplication(sys.argv)

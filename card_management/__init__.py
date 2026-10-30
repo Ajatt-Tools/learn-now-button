@@ -19,11 +19,10 @@ from aqt import mw
 
 
 def start_addon() -> None:
-    from . import browser_menus, main_menu, reset_card_scheduling
+    from . import entry_point
 
-    main_menu.init()
-    browser_menus.init()
-    reset_card_scheduling.setup()
+    entry_point = entry_point.EntryPoint()
+    entry_point.init()
 
 
 if mw and "pytest" not in sys.modules:
