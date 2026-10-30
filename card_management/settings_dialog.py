@@ -25,7 +25,7 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.setMinimumSize(320, 64)
         self.setWindowTitle(f"{ADDON_NAME} Options")
-        self._config = config or {}
+        self._config = config
         self._grab_buttons: dict[str, ShortCutGrabButton] = {
             key: ShortCutGrabButton() for key in self._config.keys() if key.endswith("_shortcut")
         }
