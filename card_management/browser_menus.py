@@ -1,3 +1,6 @@
+# Copyright: Ajatt-Tools and contributors; https://github.com/Ajatt-Tools
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import functools
 import random
 import time
@@ -11,7 +14,7 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 
 from .config import LearnNowConfig, get_global_config
-from .grade_now import answer_buttons, on_grade_cards
+from .grade_now import Ease, answer_buttons, on_grade_cards
 from .learn_now import (
     current_deck_id,
     format_message,
@@ -23,26 +26,43 @@ from .learn_now import (
 
 
 class BrowserMenus:
-    def __init__(self, cfg: LearnNowConfig):
+    """Own Browser actions and their shared configuration."""
+
+    def __init__(self, cfg: LearnNowConfig) -> None:
+        """Store the shared configuration used by every Browser action."""
         self._cfg = cfg
 
     def on_browser_menus_did_init(self, browser: Browser) -> None:
+        """Install learning and grading actions for a Browser window."""
         self._add_learn_now_button(browser)
         self._add_grade_now_buttons(browser)
 
-    def _add_learn_now_button(self, browser: Browser):
+    def _add_learn_now_button(self, browser: Browser) -> None:
+        """Add the learning action and its configured shortcut."""
         action = browser.form.menu_Cards.addAction("Learn now")
-        qconnect(action.triggered, functools.partial(self._on_put_in_learning, browser=browser))
+        # triggered passes checked. Discard it so it doesn't collide with the captured Browser argument.
+        # https://doc.qt.io/qt-6/qaction.html#triggered
+        qconnect(action.triggered, lambda checked=False: self._on_put_in_learning(browser=browser))
 
         if self._cfg.learn_shortcut:
             action.setShortcut(QKeySequence(self._cfg.learn_shortcut))
             action.setText(f"{action.text()} ({self._cfg.learn_shortcut})")
 
-    def _add_grade_now_buttons(self, browser: Browser):
+    def _on_grade_triggered(self, checked: bool, *, browser: Browser, ease: Ease) -> None:
+        """Consume QAction's checked flag before invoking the grading callback.
+
+        https://doc.qt.io/qt-6/qaction.html#triggered
+        """
+        on_grade_cards(self=browser, ease=ease)
+
+    def _add_grade_now_buttons(self, browser: Browser) -> None:
+        """Add one action for each grade while capturing its own ease value."""
         grade_menu = browser.form.menu_Cards.addMenu("Grade now")
         for ease, text in answer_buttons().items():
             action = grade_menu.addAction(text)
-            qconnect(action.triggered, functools.partial(on_grade_cards, self=browser, ease=ease))
+            # partial captures each loop's ease. The adapter consumes triggered's checked argument.
+            # https://doc.qt.io/qt-6/qaction.html#triggered
+            qconnect(action.triggered, functools.partial(self._on_grade_triggered, browser=browser, ease=ease))
             if shortcut := self._cfg.get(f"{text.lower()}_shortcut"):
                 action.setShortcut(QKeySequence(shortcut))
                 action.setText(f"{action.text()} ({shortcut})")
@@ -57,6 +77,7 @@ class BrowserMenus:
         return 0
 
     def _put_in_learning(self, col: anki.collection.Collection, card: Card) -> None:
+        """Prepare scheduling fields without writing to the collection yet."""
         # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
 
         # learn card
@@ -98,6 +119,7 @@ class BrowserMenus:
         return col.merge_undo_entries(pos)
 
     def _on_put_in_learning(self, browser: Browser) -> None:
+        """Snapshot the Browser selection and schedule eligible new cards."""
         selected_cards = list(get_selected_cards(browser))
         new_cards = list(filter(is_new, selected_cards))
 
@@ -111,5 +133,6 @@ class BrowserMenus:
 
 
 def init() -> None:
+    """Register the shared Browser menu controller."""
     menus = BrowserMenus(cfg=get_global_config())
     gui_hooks.browser_menus_did_init.append(menus.on_browser_menus_did_init)
