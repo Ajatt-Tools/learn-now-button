@@ -2,7 +2,6 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import functools
 from collections.abc import Sequence, Sized
 from gettext import ngettext
 from typing import Literal
@@ -11,7 +10,6 @@ from anki.cards import Card
 from anki.collection import Collection, OpChanges
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
-from aqt.qt import *
 from aqt.utils import showInfo
 
 from .learn_now import get_selected_cards, notify_user, with_undo_entry
@@ -106,13 +104,3 @@ def answer_buttons() -> dict[Ease, str]:
         3: "Good",
         4: "Easy",
     }
-
-
-def add_grade_now_buttons(self: Browser, *, config: dict[str, str]):
-    grade_menu = self.form.menu_Cards.addMenu("Grade now")
-    for ease, text in answer_buttons().items():
-        action = grade_menu.addAction(text)
-        qconnect(action.triggered, functools.partial(on_grade_cards, self=self, ease=ease))
-        if shortcut := config.get(f"{text.lower()}_shortcut"):
-            action.setShortcut(QKeySequence(shortcut))
-            action.setText(f"{action.text()} ({shortcut})")

@@ -3,22 +3,16 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import functools
-import random
-import time
-from collections.abc import Iterator, MutableSequence, Sized
+from collections.abc import Iterator, Sized
 from gettext import ngettext
-from typing import Callable, Optional
+from typing import Callable
 
 from anki.cards import Card
-from anki.collection import Collection, OpChanges
+from anki.collection import Collection
 from anki.decks import DeckConfigDict
-from aqt import qconnect
 from aqt.browser import Browser
-from aqt.operations import CollectionOp, ResultWithChanges
-from aqt.qt import QKeySequence
+from aqt.operations import ResultWithChanges
 from aqt.utils import tooltip
-
-from .config import config
 
 
 def notify_user(msg: str) -> None:
@@ -85,72 +79,5 @@ def reps_to_graduate(col: Collection, card: Card) -> int:
     return reps_left * 1000 + reps_left
 
 
-def get_due_offset() -> int:
-    """
-    By default, the add-on adds some randomness to due dates
-    to make sure that the order of cards doesn't affect retention.
-    """
-    if config.randomize_card_due:
-        return random.randint(0, 1000)
-    return 0
-
-
-def put_in_learning(col: Collection, card: Card) -> None:
-    # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
-
-    # learn card
-    card.type = 1  # type: ignore
-    card.queue = 1  # type: ignore
-    card.ivl = 0
-
-    # save card's original position
-    card.original_position = card.odue if card.odid else card.due
-
-    # due date, like this: 1608939774
-    card.due = int(time.time() - get_due_offset())
-
-    # number of reps left till graduation
-    card.left = reps_to_graduate(col, card)
-
-    # obviously, because it's a new card.
-    card.reps = 0
-    card.lapses = 0
-
-    # set initial factor
-    card.factor = col.decks.config_dict_for_deck_id(current_deck_id(card))["new"]["initialFactor"]
-
-
-@with_undo_entry(undo_msg="Put cards in learning")
-def put_cards_in_learning(col: Collection, cards: MutableSequence[Card]) -> OpChanges:
-    if config.randomize_card_due:
-        random.shuffle(cards)
-    for card in cards:
-        put_in_learning(col, card)
-
-    # save the cards and add an undo entry.
-    return col.update_cards(cards)
-
-
 def get_selected_cards(browser: Browser) -> Iterator[Card]:
     return map(browser.col.get_card, set(browser.selected_cards()))
-
-
-def on_put_in_learning(browser: Browser) -> None:
-    selected_cards = list(get_selected_cards(browser))
-    new_cards = list(filter(is_new, selected_cards))
-
-    if len(new_cards) < 1:
-        notify_user("No new cards selected. Nothing to do.")
-    else:
-        CollectionOp(parent=browser, op=lambda col: put_cards_in_learning(col, new_cards)).success(
-            lambda out: notify_user(format_message(new_cards, selected_cards))
-        ).run_in_background()
-
-
-def add_learn_now_button(self: Browser, *, shortcut: Optional[str]):
-    action = self.form.menu_Cards.addAction("Learn now")
-    qconnect(action.triggered, functools.partial(on_put_in_learning, browser=self))
-
-    if shortcut:
-        action.setShortcut(QKeySequence(shortcut))
-        action.setText(f"{action.text()} ({shortcut})")

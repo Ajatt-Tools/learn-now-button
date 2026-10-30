@@ -5,7 +5,7 @@
 from aqt.qt import *
 
 from .ajt_common.grab_key import ShortCutGrabButton
-from .protocols import LearnNowConfigProtocol
+from .config import LearnNowConfig
 
 OK = QDialogButtonBox.StandardButton.Ok
 CANCEL = QDialogButtonBox.StandardButton.Cancel
@@ -16,13 +16,13 @@ def as_label(config_key: str) -> str:
     return config_key.replace("_", " ").capitalize()
 
 
-def make_checkboxes(config: LearnNowConfigProtocol):
+def make_checkboxes(config: LearnNowConfig):
     return {key: QCheckBox(as_label(key)) for key in config.bool_keys()}
 
 
 class SettingsDialog(QDialog):
-    def __init__(self, *args, config: LearnNowConfigProtocol = None, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, config: LearnNowConfig, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
         self.setMinimumSize(320, 64)
         self.setWindowTitle(f"{ADDON_NAME} Options")
         self._config = config or {}
