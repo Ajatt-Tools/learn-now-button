@@ -6,3 +6,5 @@ meta.json
 .mypy_cache
 *TODO*
 __about__.py
+/*.md
+!/README.md
