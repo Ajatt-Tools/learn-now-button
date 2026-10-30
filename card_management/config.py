@@ -1,6 +1,10 @@
-# Learn Now add-on for Anki 2.1
-# Copyright: Ren Tatsumoto <tatsu at autistici.org>
+# Copyright: Ajatt-Tools and contributors; https://github.com/Ajatt-Tools
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+# Learn Now add-on for Anki 2.1
+
+import functools
+
+from aqt import mw
 
 from .ajt_common.addon_config import AddonConfigManager
 
@@ -15,4 +19,9 @@ class LearnNowConfig(AddonConfigManager):
         return self["learn_shortcut"]
 
 
-config = LearnNowConfig()
+@functools.cache
+def get_global_config() -> LearnNowConfig:
+    """Load the shared configuration on first use. """
+    assert mw, "anki must be running"
+    # Our settings dialog updates this instance directly, so no Anki config-update callback is needed.
+    return LearnNowConfig()
