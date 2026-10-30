@@ -10,7 +10,6 @@ License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 
 import functools
 from collections.abc import Sequence
-from typing import Optional
 
 from anki.cards import CardId
 from anki.collection import Collection, OpChanges
