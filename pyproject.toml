@@ -10,7 +10,7 @@ name = "card_management"
 dynamic = ["version"]
 description = "Put cards in the learning queue and answer cards from the Card Browser."
 readme = "README.md"
-requires-python = "~=3.9" # anki officially only runs on 3.9
+requires-python = "~=3.10" # Anki add-on code must support Python 3.10.
 license = { file = "LICENSE" }
 keywords = ["ajatt"]
 authors = [
@@ -19,7 +19,7 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
 ]
 dependencies = []
 
@@ -42,16 +42,16 @@ dependencies = [
   "mypy>=1.0.0",
   "isort",
   "pytest",
-  "aqt",
+  "aqt>=26.9",
   "pyupgrade",
   "beartype",
   "black",
 ]
-python = "3.9"
+python = "3.10"
 
 [[tool.hatch.envs.dev.matrix]]
 # https://hatch.pypa.io/latest/tutorials/testing/overview/#testing-projects
-python = ["3.9", ]
+python = ["3.10", ]
 
 [tool.hatch.envs.dev.scripts]
 # run as `hatch run dev:scriptname`
@@ -82,7 +82,7 @@ exclude_lines = [
 
 [tool.black]
 line-length = 120
-target-version = ['py39']
+target-version = ['py310']
 unstable = true
 
 [tool.isort]
@@ -90,3 +90,31 @@ profile = "black"
 
 [tool.basedpyright]
 reportUnusedCallResult = false
+
+[tool.pytest.ini_options]
+# Only collect tests from the tests/ directory, not from source files.
+testpaths = ["tests"]
+# Unsupported annotations can leave functions unchecked. Fail tests on beartype warnings instead.
+# https://docs.pytest.org/en/stable/how-to/capture-warnings.html#controlling-warnings
+filterwarnings = [
+    "error::beartype.roar.BeartypeWarning",
+]
+
+# https://hatch.pypa.io/latest/config/internal/testing/
+# https://hatch.pypa.io/latest/tutorials/testing/overview/
+[tool.hatch.envs.hatch-test]
+dependencies = [
+    # Hatch's --cover command needs the reporter installed in this environment.
+    "coverage[toml]",
+    "pytest",
+    "pytest-xdist",
+    "aqt>=26.9", # needed to run Anki addon tests
+    "beartype",
+]
+system-packages = true
+parallel = true
+randomize = true
+
+# Anki add-on code must keep working on Python 3.10.
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", ]
