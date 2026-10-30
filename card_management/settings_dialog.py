@@ -36,7 +36,8 @@ class SettingsDialog(QDialog):
         self._set_initial_values()
         self._add_tooltips()
 
-    def cfg_as_dict(self) -> dict[str, Union[str, bool]]:
+    def cfg_as_dict(self) -> dict[str, str | bool]:
+        """Return the edited shortcuts and checkbox values."""
         d1 = {key: grab_button.value() for key, grab_button in self._grab_buttons.items()}
         d2 = {key: checkbox.isChecked() for key, checkbox in self._checkboxes.items()}
         return d1 | d2

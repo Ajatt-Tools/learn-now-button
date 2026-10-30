@@ -23,5 +23,5 @@ class LearnNowConfig(AddonConfigManager):
 def get_global_config() -> LearnNowConfig:
     """Load the shared configuration on first use."""
     assert mw, "anki must be running"
-    # Our settings dialog updates this instance directly, so no Anki config-update callback is needed.
+    # The settings dialog updates this instance directly, so no Anki config-update callback is needed.
     return LearnNowConfig()
