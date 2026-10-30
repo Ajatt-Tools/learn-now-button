@@ -24,7 +24,8 @@ class EntryPoint:
         menus = BrowserMenus(cfg=self._cfg)
         gui_hooks.browser_menus_did_init.append(menus.on_browser_menus_did_init)
 
-    def reset_card_scheduling_init(self) -> None:
+    @staticmethod
+    def reset_card_scheduling_init() -> None:
         gui_hooks.browser_menus_did_init.append(on_browser_setup_menus)
         gui_hooks.deck_browser_will_show_options_menu.append(on_deck_browser_show_options)
 
