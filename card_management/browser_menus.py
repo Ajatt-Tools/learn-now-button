@@ -19,7 +19,6 @@ from .learn_now import (
     is_new,
     notify_user,
     reps_to_graduate,
-    with_undo_entry,
 )
 
 
@@ -81,17 +80,22 @@ class BrowserMenus:
         # set initial factor
         card.factor = col.decks.config_dict_for_deck_id(current_deck_id(card))["new"]["initialFactor"]
 
-    @with_undo_entry(undo_msg="Put cards in learning")
     def _put_cards_in_learning(
         self, col: anki.collection.Collection, cards: MutableSequence[Card]
     ) -> anki.collection.OpChanges:
+        """Save learning changes in a single undo entry."""
+        if not cards:
+            return anki.collection.OpChanges()
         if self._cfg.randomize_card_due:
             random.shuffle(cards)
         for card in cards:
             self._put_in_learning(col, card)
 
-        # save the cards and add an undo entry.
-        return col.update_cards(cards)
+        # Preparation can fail. Start undo history only when the batch is ready to write.
+        # https://addon-docs.ankiweb.net/background-ops.html#collection-operations
+        pos = col.add_custom_undo_entry("Put cards in learning")
+        col.update_cards(cards)
+        return col.merge_undo_entries(pos)
 
     def _on_put_in_learning(self, browser: Browser) -> None:
         selected_cards = list(get_selected_cards(browser))

@@ -2,35 +2,19 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import functools
 from collections.abc import Iterator, Sized
 from gettext import ngettext
-from typing import Callable
 
 from anki.cards import Card
 from anki.collection import Collection
 from anki.decks import DeckConfigDict
 from aqt.browser import Browser
-from aqt.operations import ResultWithChanges
 from aqt.utils import tooltip
 
 
 def notify_user(msg: str) -> None:
     tooltip(msg, period=7_000)  # 7 seconds
     print(msg)
-
-
-def with_undo_entry(undo_msg: str):
-    def decorator(function: Callable):
-        @functools.wraps(function)
-        def wrapper(col: Collection, *args, **kwargs) -> ResultWithChanges:
-            pos = col.add_custom_undo_entry(undo_msg)
-            function(col, *args, **kwargs)
-            return col.merge_undo_entries(pos)
-
-        return wrapper
-
-    return decorator
 
 
 def format_message(accepted: Sized, selected: Sized) -> str:

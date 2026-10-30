@@ -12,7 +12,7 @@ from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.utils import showInfo
 
-from .learn_now import get_selected_cards, notify_user, with_undo_entry
+from .learn_now import get_selected_cards, notify_user
 
 Ease = Literal[1, 2, 3, 4]
 UNDO_QUEUE_LIMIT = 30  # https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-45/11212
@@ -62,13 +62,19 @@ def adjust_intervals(col: Collection, cards: Sequence[Card]) -> OpChanges:
     return col.update_cards(cards)
 
 
-@with_undo_entry(undo_msg="Grade cards from Browser")
-def grade_cards(col: Collection, cards: Sequence[Card], ease: Ease) -> None:
+def grade_cards(col: Collection, cards: Sequence[Card], ease: Ease) -> OpChanges:
+    """Group interval adjustments and answers into one undoable batch."""
+    if not cards:
+        return OpChanges()
+    # Scheduler answers write immediately, so the undo boundary must cover both kinds of writes.
+    # https://addon-docs.ankiweb.net/background-ops.html#collection-operations
+    position = col.add_custom_undo_entry("Grade cards from Browser")
     adjust_intervals(col, cards)
 
     for card in cards:
         card.start_timer()
         col.sched.answerCard(card, ease)
+    return col.merge_undo_entries(position)
 
 
 def is_not_suspended_or_buried(card: Card) -> bool:
