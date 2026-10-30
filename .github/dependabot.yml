@@ -1,0 +1,46 @@
+# Adapted from https://github.com/Ajatt-Tools/PasteImagesAsWebP/blob/ef04c792a1227c06538ada440c16305f0303c395/.github/dependabot.yml
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 20
+    labels:
+      - "area/dependencies"
+    groups:
+      # group minor/patch updates together
+      # Major updates are intentionally left ungrouped for individual review
+      minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # PyPi
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 20
+    labels:
+      - "area/dependencies"
+    groups:
+      # group minor/patch updates together
+      # Major updates are intentionally left ungrouped for individual review
+      minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Git submodules
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "area/dependencies"
