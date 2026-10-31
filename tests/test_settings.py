@@ -4,7 +4,7 @@
 from unittest.mock import create_autospec
 
 import pytest
-from aqt.qt import QApplication
+from aqt.qt import QApplication, QMenu
 
 from card_management import main_menu
 from card_management.main_menu import MainMenu
@@ -31,6 +31,25 @@ class TestSettingsDialog:
 
 class TestMainMenu:
     """Keep edits on the shared configuration instance and persist only accepted changes."""
+
+    @pytest.mark.parametrize("checked", [False, True])
+    def test_options_action(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        qapp: QApplication,
+        no_anki_config: NoAnkiConfigView,
+        checked: bool,
+    ) -> None:
+        """The real signal must open settings without forwarding its checked argument."""
+        menu = QMenu()
+        monkeypatch.setattr(main_menu, "menu_root_entry", lambda: menu)
+        factory = create_autospec(SettingsDialog)
+        factory.return_value.exec.return_value = 0
+        monkeypatch.setattr(main_menu, "SettingsDialog", factory)
+        controller = MainMenu(no_anki_config)
+        controller.setup_mainwindow_menu()
+        menu.actions()[0].triggered.emit(checked)
+        factory.return_value.exec.assert_called_once_with()
 
     @pytest.mark.parametrize("accepted", [False, True])
     def test_settings_acceptance(

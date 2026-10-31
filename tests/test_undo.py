@@ -10,7 +10,7 @@ from anki.collection import Collection, OpChanges
 from card_management.browser_menus import BrowserMenus
 from card_management.grade_now import Ease, grade_cards
 from playground.no_anki_config import NoAnkiConfigView
-from tests.helpers import make_new_cards, snapshot_cards
+from tests.helpers import make_new_cards, make_review_cards, snapshot_cards
 
 
 class TestLearningUndo:
@@ -36,18 +36,6 @@ class TestLearningUndo:
         anki_collection.redo()
         assert snapshot_cards(anki_collection, original_order) == after
 
-    @pytest.mark.parametrize("has_redo", [False, True])
-    def test_empty_batch_preserves_history(
-        self, anki_collection: Collection, no_anki_config: NoAnkiConfigView, has_redo: bool
-    ) -> None:
-        """Empty learning batches leave existing Undo and Redo entries intact."""
-        make_new_cards(anki_collection, 1)
-        if has_redo:
-            anki_collection.undo()
-        before = anki_collection.undo_status()
-        assert BrowserMenus(no_anki_config)._put_cards_in_learning(anki_collection, []) == OpChanges()
-        assert anki_collection.undo_status() == before
-
     @pytest.mark.parametrize("randomize", [False, True])
     def test_preparation_failure_does_not_create_undo(
         self, monkeypatch: pytest.MonkeyPatch, no_anki_config: NoAnkiConfigView, randomize: bool
@@ -68,9 +56,13 @@ class TestGradingUndo:
     """Verify that answers and scheduling changes are grouped together."""
 
     @pytest.mark.parametrize("ease", [1, 2, 3, 4])
-    def test_batch_undo_redo(self, anki_collection: Collection, ease: Ease) -> None:
+    @pytest.mark.parametrize("review", [False, True], ids=["new", "early-review"])
+    def test_batch_undo_redo(self, anki_collection: Collection, ease: Ease, review: bool) -> None:
         """Undo and Redo restore both cards and their review log entries."""
-        cards = make_new_cards(anki_collection, 2)
+        make_cards = make_new_cards
+        if review:
+            make_cards = make_review_cards
+        cards = make_cards(anki_collection, 2)
         before = snapshot_cards(anki_collection, cards)
         log_count = anki_collection.db.scalar("select count(*) from revlog")
         changes = grade_cards(anki_collection, cards, ease)
@@ -85,12 +77,23 @@ class TestGradingUndo:
         assert snapshot_cards(anki_collection, cards) == after
         assert anki_collection.db.scalar("select count(*) from revlog") == log_count + 2
 
+
+class TestEmptyBatchUndo:
+    """Apply the same history-preservation contract to learning and grading."""
+
+    @pytest.mark.parametrize("learning", [False, True], ids=["grade", "learn"])
     @pytest.mark.parametrize("has_redo", [False, True])
-    def test_empty_batch_preserves_history(self, anki_collection: Collection, has_redo: bool) -> None:
-        """An empty grading request does not clear Redo or add an Undo entry."""
+    def test_empty_batch_preserves_history(
+        self, anki_collection: Collection, no_anki_config: NoAnkiConfigView, learning: bool, has_redo: bool
+    ) -> None:
+        """Empty requests leave both Undo and Redo history intact."""
         make_new_cards(anki_collection, 1)
         if has_redo:
             anki_collection.undo()
         before = anki_collection.undo_status()
-        assert grade_cards(anki_collection, [], 3) == OpChanges()
+        if learning:
+            changes = BrowserMenus(no_anki_config)._put_cards_in_learning(anki_collection, [])
+        else:
+            changes = grade_cards(anki_collection, [], 3)
+        assert changes == OpChanges()
         assert anki_collection.undo_status() == before

@@ -2,10 +2,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from collections.abc import Sequence
+from types import ModuleType
 from typing import NamedTuple
+from unittest.mock import MagicMock, create_autospec
 
+import pytest
 from anki.cards import Card
-from anki.collection import Collection
+from anki.collection import Collection, OpChanges
+from aqt.browser import Browser
+from aqt.operations import CollectionOp
 from beartype import beartype
 
 
@@ -24,6 +29,23 @@ class CardSnapshot(NamedTuple):
 
 
 @beartype
+def capture_collection_op(monkeypatch: pytest.MonkeyPatch, module: ModuleType) -> MagicMock:
+    """Capture worker and success callbacks without starting an Anki background thread."""
+    factory = create_autospec(CollectionOp)
+    factory.return_value.success.return_value = factory.return_value
+    monkeypatch.setattr(module, "CollectionOp", factory)
+    return factory
+
+
+@beartype
+def complete_collection_op(factory: MagicMock, col: Collection) -> OpChanges:
+    """Execute the captured worker and then its UI success callback."""
+    changes = factory.call_args.kwargs["op"](col)
+    factory.return_value.success.call_args.args[0](changes)
+    return changes
+
+
+@beartype
 def make_new_cards(col: Collection, count: int) -> Sequence[Card]:
     """Add independent Basic notes and retrieve their new cards."""
     cards = []
@@ -33,6 +55,30 @@ def make_new_cards(col: Collection, count: int) -> Sequence[Card]:
         note["Back"] = f"Answer {index}"
         col.add_note(note, col.decks.id("Default"))
         cards.extend(note.cards())
+    return cards
+
+
+@beartype
+def select_new_cards(browser: Browser, col: Collection, count: int) -> Sequence[Card]:
+    """Populate the Browser's mocked selection with cards from the supplied real collection."""
+    cards = make_new_cards(col, count)
+    browser.col = col
+    browser.selected_cards.return_value = [card.id for card in cards]
+    return cards
+
+
+@beartype
+def make_review_cards(col: Collection, count: int) -> Sequence[Card]:
+    """Prepare review cards that are being graded before their scheduled due date."""
+    cards = make_new_cards(col, count)
+    for card in cards:
+        card.type = 2
+        card.queue = 2
+        card.ivl = 30
+        card.due = col.sched.today + 20
+        card.factor = 2500
+        card.reps = 3
+    col.update_cards(cards)
     return cards
 
 

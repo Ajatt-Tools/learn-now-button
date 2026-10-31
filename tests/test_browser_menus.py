@@ -4,16 +4,67 @@
 from unittest.mock import create_autospec
 
 import pytest
+from anki.collection import Collection
 from aqt.browser import Browser
 
 from card_management import browser_menus
 from card_management.browser_menus import BrowserMenus
 from card_management.grade_now import Ease
 from playground.no_anki_config import NoAnkiConfigView
+from tests.helpers import (
+    capture_collection_op,
+    complete_collection_op,
+    select_new_cards,
+    snapshot_cards,
+)
 
 
 class TestBrowserMenus:
     """Exercise the real QAction signals connected by the refactored controller."""
+
+    @pytest.mark.parametrize("count", [1, 2])
+    def test_learning_worker_and_success(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        browser: Browser,
+        anki_collection: Collection,
+        no_anki_config: NoAnkiConfigView,
+        count: int,
+    ) -> None:
+        """The worker uses the captured selection and reports completion only after persistence."""
+        cards = select_new_cards(browser, anki_collection, count)
+        factory = capture_collection_op(monkeypatch, browser_menus)
+        notify = create_autospec(browser_menus.notify_user)
+        monkeypatch.setattr(browser_menus, "notify_user", notify)
+        BrowserMenus(no_anki_config)._on_put_in_learning(browser)
+        assert factory.call_args.kwargs["parent"] is browser
+        factory.return_value.run_in_background.assert_called_once_with()
+        notify.assert_not_called()
+        browser.selected_cards.return_value = []
+        assert complete_collection_op(factory, anki_collection).card is True
+        assert [card.queue for card in snapshot_cards(anki_collection, cards)] == [1] * count
+        notify.assert_called_once_with(browser_menus.format_message(cards, cards))
+
+    @pytest.mark.parametrize("has_selection", [False, True])
+    def test_no_eligible_cards(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        browser: Browser,
+        anki_collection: Collection,
+        no_anki_config: NoAnkiConfigView,
+        has_selection: bool,
+    ) -> None:
+        """Empty selections and non-new cards must not start a collection operation."""
+        cards = select_new_cards(browser, anki_collection, int(has_selection))
+        for card in cards:
+            card.queue = -1
+        anki_collection.update_cards(cards)
+        factory = capture_collection_op(monkeypatch, browser_menus)
+        notify = create_autospec(browser_menus.notify_user)
+        monkeypatch.setattr(browser_menus, "notify_user", notify)
+        BrowserMenus(no_anki_config)._on_put_in_learning(browser)
+        factory.assert_not_called()
+        notify.assert_called_once_with("No new cards selected. Nothing to do.")
 
     @pytest.mark.parametrize("checked", [False, True])
     @pytest.mark.parametrize("shortcut", ["", "Ctrl+L"])

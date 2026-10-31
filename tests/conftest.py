@@ -12,12 +12,27 @@ from unittest.mock import create_autospec
 import anki.lang
 import pytest
 from anki.collection import Collection
+from aqt import AnkiQt
 from aqt.browser import Browser
 from aqt.qt import QApplication, QMenu
 from beartype import beartype
 
+from card_management import entry_point, main_menu
+from card_management.ajt_common import addon_config
 from card_management.config import get_global_config
 from playground.no_anki_config import NoAnkiConfigView
+
+
+@pytest.fixture
+def entry_point_window(monkeypatch: pytest.MonkeyPatch, qapp: QApplication) -> AnkiQt:
+    """Provide real menu installation with isolated hook registries and a mocked Anki window."""
+    window = create_autospec(AnkiQt, instance=True)
+    monkeypatch.setattr(entry_point, "mw", window)
+    monkeypatch.setattr(entry_point.gui_hooks, "browser_menus_did_init", [])
+    monkeypatch.setattr(entry_point.gui_hooks, "deck_browser_will_show_options_menu", [])
+    monkeypatch.setattr(entry_point, "set_config_action", create_autospec(entry_point.set_config_action))
+    monkeypatch.setattr(main_menu, "menu_root_entry", lambda: QMenu())
+    return window
 
 
 @pytest.fixture
@@ -32,6 +47,21 @@ def browser(qapp: QApplication) -> Browser:
 def no_anki_config() -> NoAnkiConfigView:
     """Provide independent editable settings without a running Anki instance."""
     return NoAnkiConfigView()
+
+
+@pytest.fixture
+def config_storage(monkeypatch: pytest.MonkeyPatch, no_anki_config: NoAnkiConfigView) -> None:
+    """Provide autospecced storage boundaries for tests of the real cached accessor."""
+    monkeypatch.setattr(
+        addon_config,
+        "get_default_config",
+        create_autospec(addon_config.get_default_config, return_value=no_anki_config.default_config),
+    )
+    monkeypatch.setattr(
+        addon_config,
+        "get_config",
+        create_autospec(addon_config.get_config, return_value=no_anki_config.dict_copy()),
+    )
 
 
 @pytest.fixture

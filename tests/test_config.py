@@ -21,26 +21,22 @@ class TestGlobalConfig:
         self,
         monkeypatch: pytest.MonkeyPatch,
         clear_config_cache: None,
-        no_anki_config: NoAnkiConfigView,
+        config_storage: None,
         anki_running: bool,
     ) -> None:
         """Only construct settings with Anki running and reuse that instance afterward."""
-        defaults = create_autospec(addon_config.get_default_config, return_value=no_anki_config.default_config)
-        stored = create_autospec(addon_config.get_config, return_value=no_anki_config.dict_copy())
-        monkeypatch.setattr(addon_config, "get_default_config", defaults)
-        monkeypatch.setattr(addon_config, "get_config", stored)
         monkeypatch.setattr(config_module, "mw", None)
         if not anki_running:
             with pytest.raises(AssertionError, match="anki must be running"):
                 config_module.get_global_config()
-            defaults.assert_not_called()
-            stored.assert_not_called()
+            addon_config.get_default_config.assert_not_called()
+            addon_config.get_config.assert_not_called()
             return
         monkeypatch.setattr(config_module, "mw", create_autospec(AnkiQt, instance=True))
         config = config_module.get_global_config()
         assert config_module.get_global_config() is config
-        defaults.assert_called_once_with()
-        stored.assert_called_once_with()
+        addon_config.get_default_config.assert_called_once_with()
+        addon_config.get_config.assert_called_once_with()
 
     @pytest.mark.parametrize("randomize", [False, True])
     def test_existing_controller_sees_changes(
