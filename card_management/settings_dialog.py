@@ -16,7 +16,7 @@ def as_label(config_key: str) -> str:
     return config_key.replace("_", " ").capitalize()
 
 
-def make_checkboxes(config: LearnNowConfig):
+def make_checkboxes(config: LearnNowConfig) -> dict[str, QCheckBox]:
     """Create one checkbox for each Boolean configuration setting."""
     return {key: QCheckBox(as_label(key)) for key in config.bool_keys()}
 
