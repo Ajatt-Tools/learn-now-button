@@ -52,6 +52,11 @@ ln -sr learn-now-button/card_management ~/.local/share/Anki2/addons21/card_manag
 
 ## Configuration
 
+`Skip sibling cards` is enabled by default.
+When using Learn now, only one eligible selected new card per note is put into learning.
+The selected sibling with the lowest template number is chosen, and skipped siblings remain new.
+Disable this option to learn all selected new siblings.
+
 To configure the add-on, open the Anki Add-on Menu via "Tools" > "Add-ons" and select "Learn now & Grade now".
 Then click the "Config" button on the right-side of the screen.
 You can see how it's done on

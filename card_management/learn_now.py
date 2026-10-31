@@ -2,12 +2,13 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from collections.abc import Iterator, Sized
+from collections.abc import Iterable, Iterator, Sized
 from gettext import ngettext
 
 from anki.cards import Card
 from anki.collection import Collection
 from anki.decks import DeckConfigDict
+from anki.notes import NoteId
 from aqt.browser import Browser
 from aqt.utils import tooltip
 
@@ -32,8 +33,9 @@ def format_message(accepted: Sized, selected: Sized) -> str:
     if (num_rejected := len(selected) - len(accepted)) > 0:
         msg.append(
             ngettext(
-                f"{num_rejected} card was ignored because it isn't a new card.",
-                f"{num_rejected} cards were ignored because they are not new cards.",
+                f"{num_rejected} card was ignored because it isn't a new card or its sibling was chosen instead.",
+                f"{num_rejected} cards were ignored because they are not new cards or their siblings were chosen"
+                " instead.",
                 num_rejected,
             )
         )
@@ -65,3 +67,27 @@ def reps_to_graduate(col: Collection, card: Card) -> int:
 
 def get_selected_cards(browser: Browser) -> Iterator[Card]:
     return map(browser.col.get_card, set(browser.selected_cards()))
+
+
+def filter_cards(cards: Iterable[Card], *, skip_siblings: bool) -> list[Card]:
+    """
+    Keep only new cards, and, if `skip_siblings` is enabled,
+    keep only the sibling with the lowest `ord` per note (nid).
+
+    Accept the Browser callback's list as well as one-shot iterators under runtime type checking.
+    https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable
+    """
+
+    cards = (card for card in cards if is_new(card))
+    if not skip_siblings:
+        return [*cards]
+
+    # For each note select one card with the lowest ord.
+    note_id_to_min_card: dict[NoteId, Card] = {}
+
+    for card in cards:
+        current_best = note_id_to_min_card.get(card.nid)
+        if current_best is None or card.ord < current_best.ord:
+            note_id_to_min_card[card.nid] = card
+
+    return [*note_id_to_min_card.values()]
