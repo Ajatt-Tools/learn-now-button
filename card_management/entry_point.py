@@ -11,13 +11,18 @@ from .reset_card_scheduling import on_browser_setup_menus, on_deck_browser_show_
 
 
 class EntryPoint:
+    """Connect Card Management controllers to Anki's menus and hooks."""
+
     def __init__(self, cfg: LearnNowConfig | None = None) -> None:
+        """Use injected settings or lazily load the shared Anki configuration."""
         self._cfg = cfg or get_global_config()
 
     def attach_self_to_mw(self) -> None:
+        """Keep the entry point alive for the lifetime of Anki's main window."""
         setattr(mw, "_ajt__card_management_entry_point", self)  # call setattr to avoid LSP errors
 
     def main_menu_init(self) -> None:
+        """Register the settings callback and install its main-window action."""
         menus = MainMenu(cfg=self._cfg)
         set_config_action(menus.on_open_settings)
         menus.setup_mainwindow_menu()
@@ -29,10 +34,12 @@ class EntryPoint:
 
     @staticmethod
     def reset_card_scheduling_init() -> None:
+        """Register reset actions for Browser and deck options menus."""
         gui_hooks.browser_menus_did_init.append(on_browser_setup_menus)
         gui_hooks.deck_browser_will_show_options_menu.append(on_deck_browser_show_options)
 
     def init(self) -> None:
+        """Retain this entry point and install all Card Management integrations."""
         self.attach_self_to_mw()
         self.main_menu_init()
         self.browser_menus_init()

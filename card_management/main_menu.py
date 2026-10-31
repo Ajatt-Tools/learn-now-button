@@ -11,10 +11,14 @@ from .settings_dialog import ADDON_NAME, SettingsDialog
 
 
 class MainMenu:
+    """Manage settings actions using the shared configuration instance."""
+
     def __init__(self, cfg: LearnNowConfig) -> None:
+        """Retain the configuration used by the settings dialog."""
         self._cfg = cfg
 
     def on_open_settings(self) -> None:
+        """Apply and persist edits only when the settings dialog is accepted."""
         dialog = SettingsDialog(parent=mw, config=self._cfg)
         if dialog.exec():
             # if accepted
@@ -22,6 +26,7 @@ class MainMenu:
             self._cfg.write_config()
 
     def setup_mainwindow_menu(self) -> None:
+        """Add the settings action to the shared Ajatt-Tools menu."""
         root_menu = menu_root_entry()
         action = QAction(f"{ADDON_NAME} Options...", root_menu)
         qconnect(action.triggered, self.on_open_settings)

@@ -48,6 +48,7 @@ def reset_selected_card_scheduling(col: Collection, cids: Sequence[CardId], undo
 
 
 def on_browser_reset_cards(self: Browser) -> None:
+    """Confirm a nonempty Browser selection before scheduling its reset."""
     cids = self.selected_cards()
     if not cids:
         tooltip("No cards selected.")
@@ -71,6 +72,7 @@ def on_browser_reset_cards(self: Browser) -> None:
 
 
 def on_deck_browser_reset_cards(deck_id: DeckId) -> None:
+    """Confirm a nonempty, nonfiltered deck before scheduling its reset."""
     assert mw, "Main window should be available."
 
     if mw.col.decks.is_filtered(deck_id):
@@ -103,10 +105,12 @@ def on_deck_browser_reset_cards(deck_id: DeckId) -> None:
 
 
 def on_browser_setup_menus(self: Browser) -> None:
+    """Add the selected-card reset action to the Browser menu."""
     action = self.form.menu_Cards.addAction("Reset selected cards")
     action.triggered.connect(functools.partial(on_browser_reset_cards, self))
 
 
 def on_deck_browser_show_options(menu: QMenu, deck_id: int) -> None:
+    """Add a reset action for the deck whose options menu is open."""
     action = menu.addAction("Reset deck")
     qconnect(action.triggered, functools.partial(on_deck_browser_reset_cards, deck_id))

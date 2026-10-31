@@ -17,11 +17,15 @@ def as_label(config_key: str) -> str:
 
 
 def make_checkboxes(config: LearnNowConfig):
+    """Create one checkbox for each Boolean configuration setting."""
     return {key: QCheckBox(as_label(key)) for key in config.bool_keys()}
 
 
 class SettingsDialog(QDialog):
+    """Edit shortcuts and Boolean settings without applying unaccepted changes."""
+
     def __init__(self, config: LearnNowConfig, parent: QWidget | None = None) -> None:
+        """Build controls initialized from the supplied concrete configuration."""
         super().__init__(parent)
         self.setMinimumSize(320, 64)
         self.setWindowTitle(f"{ADDON_NAME} Options")
