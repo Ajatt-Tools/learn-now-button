@@ -107,10 +107,14 @@ def on_deck_browser_reset_cards(deck_id: DeckId) -> None:
 def on_browser_setup_menus(self: Browser) -> None:
     """Add the selected-card reset action to the Browser menu."""
     action = self.form.menu_Cards.addAction("Reset selected cards")
-    action.triggered.connect(functools.partial(on_browser_reset_cards, self))
+    # Discard triggered's checked flag before calling the runtime-checked reset callback.
+    # https://doc.qt.io/qt-6/qaction.html#triggered
+    qconnect(action.triggered, lambda checked=False: on_browser_reset_cards(self))
 
 
 def on_deck_browser_show_options(menu: QMenu, deck_id: int) -> None:
     """Add a reset action for the deck whose options menu is open."""
     action = menu.addAction("Reset deck")
-    qconnect(action.triggered, functools.partial(on_deck_browser_reset_cards, deck_id))
+    # Discard triggered's checked flag. The target deck is captured when this menu is built.
+    # https://doc.qt.io/qt-6/qaction.html#triggered
+    qconnect(action.triggered, lambda checked=False: on_deck_browser_reset_cards(DeckId(deck_id)))

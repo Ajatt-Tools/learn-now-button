@@ -29,5 +29,7 @@ class MainMenu:
         """Add the settings action to the shared Ajatt-Tools menu."""
         root_menu = menu_root_entry()
         action = QAction(f"{ADDON_NAME} Options...", root_menu)
-        qconnect(action.triggered, self.on_open_settings)
+        # Discard triggered's checked flag before calling the runtime-checked Python method.
+        # https://doc.qt.io/qt-6/qaction.html#triggered
+        qconnect(action.triggered, lambda checked=False: self.on_open_settings())
         root_menu.addAction(action)
