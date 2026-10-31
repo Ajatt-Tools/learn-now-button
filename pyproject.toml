@@ -115,6 +115,8 @@ python = ["3.10", ]
 
 # https://hatch.pypa.io/latest/how-to/static-analysis/behavior/
 [tool.hatch.envs.hatch-check-fmt]
+# pyupgrade>=3.22 needs Python 3.11+. Keep the tool runtime separate from Anki's compatibility target.
+python = "3.14"
 dependencies = [
     "black>=26.10",
     "isort>=9.0",
