@@ -8,7 +8,6 @@ Copyright: (c) 2015-2016 Jeff Baitis <jeff@baitis.net>
 License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 """
 
-import functools
 from collections.abc import Sequence
 
 from anki.cards import CardId
