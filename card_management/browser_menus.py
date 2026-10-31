@@ -24,6 +24,14 @@ from .learn_now import (
 )
 
 
+def on_grade_triggered(checked: bool, *, browser: Browser, ease: Ease) -> None:
+    """Consume QAction's checked flag before invoking the grading callback.
+
+    https://doc.qt.io/qt-6/qaction.html#triggered
+    """
+    on_grade_cards(self=browser, ease=ease)
+
+
 class BrowserMenus:
     """Own Browser actions and their shared configuration."""
 
@@ -47,13 +55,6 @@ class BrowserMenus:
             action.setShortcut(QKeySequence(self._cfg.learn_shortcut))
             action.setText(f"{action.text()} ({self._cfg.learn_shortcut})")
 
-    def _on_grade_triggered(self, checked: bool, *, browser: Browser, ease: Ease) -> None:
-        """Consume QAction's checked flag before invoking the grading callback.
-
-        https://doc.qt.io/qt-6/qaction.html#triggered
-        """
-        on_grade_cards(self=browser, ease=ease)
-
     def _add_grade_now_buttons(self, browser: Browser) -> None:
         """Add one action for each grade while capturing its own ease value."""
         grade_menu = browser.form.menu_Cards.addMenu("Grade now")
@@ -61,7 +62,7 @@ class BrowserMenus:
             action = grade_menu.addAction(text)
             # partial captures each loop's ease. The adapter consumes triggered's checked argument.
             # https://doc.qt.io/qt-6/qaction.html#triggered
-            qconnect(action.triggered, functools.partial(self._on_grade_triggered, browser=browser, ease=ease))
+            qconnect(action.triggered, functools.partial(on_grade_triggered, browser=browser, ease=ease))
             if shortcut := self._cfg.get(f"{text.lower()}_shortcut"):
                 action.setShortcut(QKeySequence(shortcut))
                 action.setText(f"{action.text()} ({shortcut})")
